@@ -132,7 +132,7 @@ export default function Home() {
 
                   {/* New cut‑off line */}
                   <p className="mt-auto text-gray-800">
-                    Cut‑off score for last admitted student – <strong>{s.match_min_score}</strong>
+                    Cut‑off score for last admitted student – <strong>{s.match_max_score}</strong>
                   </p>
                 </div>
               );
