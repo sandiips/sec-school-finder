@@ -1,103 +1,107 @@
-import Image from "next/image";
+// src/app/page.tsx
+'use client';
+
+import { useState } from 'react';
+import useSWR from 'swr';
+import { supabase } from '../lib/supabaseClient';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [score, setScore]     = useState('');
+  const [primary, setPrimary] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [results, setResults] = useState<any[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  // Load primary schools for the dropdown
+  const { data: primaries } = useSWR('/api/primaries', fetcher);
+
+  async function onSearch(e: React.FormEvent) {
+    e.preventDefault();
+
+    // 1) Geocode the pincode
+    const geo = await fetch(`/api/geocode?pincode=${pincode}`).then(r => r.json());
+    if (geo.error) {
+      alert(geo.error);
+      return;
+    }
+    const { lat, lng } = geo;
+
+    // 2) Call search RPC
+    const qs = new URLSearchParams({
+      score,
+      primary,
+      lat: String(lat),
+      lng: String(lng)
+    });
+    const data = await fetch(`/api/search?${qs}`).then(r => r.json());
+    if (data.error) {
+      alert(data.error);
+      return;
+    }
+    setResults(data);
+  }
+
+  return (
+    <main className="p-6 max-w-2xl mx-auto">
+      <h1 className="text-3xl mb-4">Secondary School Finder</h1>
+      <form onSubmit={onSearch} className="space-y-3">
+        <input
+          type="number"
+          placeholder="PSLE Score"
+          value={score}
+          onChange={e => setScore(e.target.value)}
+          required
+          className="w-full p-2 border rounded"
+        />
+        <select
+          value={primary}
+          onChange={e => setPrimary(e.target.value)}
+          required
+          className="w-full p-2 border rounded"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <option value="">Select Primary School</option>
+          {primaries?.map((p: any) => (
+            <option key={p.slug} value={p.slug}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+        <input
+          type="text"
+          placeholder="Postal Code"
+          value={pincode}
+          onChange={e => setPincode(e.target.value)}
+          required
+          className="w-full p-2 border rounded"
+        />
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white p-2 rounded"
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+          Find Schools
+        </button>
+      </form>
+
+      <ul className="mt-6 space-y-4">
+        {results.map((s) => (
+          <li key={s.code} className="border p-4 rounded">
+            <div className="flex justify-between">
+              <h2 className="text-xl">{s.name}</h2>
+              <span>{(s.distance_m/1000).toFixed(2)} km</span>
+            </div>
+            <p>{s.address}</p>
+            <p>
+              {s.is_affiliated
+                ? <strong className="text-green-600">Affiliated</strong>
+                : <em className="text-gray-600">Non‑affiliated</em>}
+            </p>
+            <p>
+              COP Range: {s.match_min_score}{s.match_min_qualifier||''} – {s.match_max_score}{s.match_max_qualifier||''}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </main>
+);
 }
