@@ -28,10 +28,10 @@ export default function Home() {
   return (
     <main className="space-y-16">
 
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-pink-50 via-pink-100 to-white">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-8 px-4">
-          {/* Left */}
+          {/* Left: Text & Form */}
           <div className="space-y-6 text-gray-900">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
               Find the <span className="text-blue-600">RIGHT</span> school for <span className="text-blue-600">YOU</span>
@@ -75,7 +75,8 @@ export default function Home() {
               </button>
             </form>
           </div>
-          {/* Right */}
+
+          {/* Right: Hero Image */}
           <div className="relative w-full h-96 md:h-[400px] rounded-lg overflow-hidden shadow-lg">
             <Image
               src="/hero.jpg"
@@ -87,7 +88,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Results */}
+      {/* Results Section */}
       <section className="container mx-auto px-4 py-12 bg-white">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Recommendations</h2>
 
@@ -98,7 +99,13 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {results.map((s) => {
-              // Determine the posting-group label or "IP"
+              // Convert slug to Title Case: "victoria-school" → "Victoria School"
+              const displayName = s.name
+                .split('-')
+                .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+
+              // Determine posting group label
               const groupLabel = s.posting_group != null
                 ? `PG ${s.posting_group}`
                 : 'Integrated Programme';
@@ -109,7 +116,7 @@ export default function Home() {
                   className="bg-gray-50 border border-gray-200 rounded-lg p-6 flex flex-col"
                 >
                   <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900">{s.name}</h3>
+                    <h3 className="text-xl font-semibold text-gray-900">{displayName}</h3>
                     <span className="text-gray-500 text-sm">{(s.distance_m/1000).toFixed(2)} km</span>
                   </div>
 
@@ -117,12 +124,7 @@ export default function Home() {
 
                   {/* Tags for affiliation and posting group */}
                   <div className="flex space-x-2 mb-4">
-                    <span className={`
-                      inline-block px-2 py-1 rounded-full text-sm 
-                      ${s.is_affiliated 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'}
-                    `}>
+                    <span className={`inline-block px-2 py-1 rounded-full text-sm ${s.is_affiliated ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                       {s.is_affiliated ? 'Affiliated' : 'Non‑affiliated'}
                     </span>
                     <span className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
@@ -130,7 +132,7 @@ export default function Home() {
                     </span>
                   </div>
 
-                  {/* New cut‑off line */}
+                  {/* Cut-off score line */}
                   <p className="mt-auto text-gray-800">
                     Cut‑off score for last admitted student – <strong>{s.match_max_score}</strong>
                   </p>
