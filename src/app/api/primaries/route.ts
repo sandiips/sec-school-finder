@@ -1,11 +1,12 @@
 // src/app/api/primaries/route.ts
 import { NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabaseClient';
+import { supabase }    from '../../../lib/supabaseClient';
 
 export async function GET() {
   const { data, error } = await supabase
     .from('primaries')
-    .select('slug, name');
+    .select('slug, name')
+    .order('name', { ascending: true });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
