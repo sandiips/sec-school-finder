@@ -191,7 +191,7 @@ export default function Home() {
                         </div>
                         <p className="mt-2 text-gray-800">
                           Cut‑off point:{' '}
-                          <strong>{s.cop_max_score}</strong>
+                          <strong>{s.match_max_score}</strong>
                         </p>
                       </div>
                       <div className="text-gray-500 text-sm">
