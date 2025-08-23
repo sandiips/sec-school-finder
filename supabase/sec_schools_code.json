@@ -1,0 +1,562 @@
+[
+  {
+    "json_agg": [
+      {
+        "name": "cedar-girls-secondary-school",
+        "code": 3004
+      },
+      {
+        "name": "paya-lebar-methodist-girls-school-secondary",
+        "code": 7026
+      },
+      {
+        "name": "gan-eng-seng-school",
+        "code": 3006
+      },
+      {
+        "name": "admiralty-secondary-school",
+        "code": 3072
+      },
+      {
+        "name": "ahmad-ibrahim-secondary-school",
+        "code": 3201
+      },
+      {
+        "name": "anderson-secondary-school",
+        "code": 3001
+      },
+      {
+        "name": "ang-mo-kio-secondary-school",
+        "code": 3026
+      },
+      {
+        "name": "anglican-high-school",
+        "code": 7101
+      },
+      {
+        "name": "anglochinese-school-independent-secondary",
+        "code": 7001
+      },
+      {
+        "name": "assumption-english-school",
+        "code": 7002
+      },
+      {
+        "name": "bartley-secondary-school",
+        "code": 3002
+      },
+      {
+        "name": "beatty-secondary-school",
+        "code": 3003
+      },
+      {
+        "name": "bedok-green-secondary-school",
+        "code": 3069
+      },
+      {
+        "name": "bedok-south-secondary-school",
+        "code": 3027
+      },
+      {
+        "name": "bedok-view-secondary-school",
+        "code": 3225
+      },
+      {
+        "name": "bendemeer-secondary-school",
+        "code": 3021
+      },
+      {
+        "name": "boon-lay-secondary-school",
+        "code": 3224
+      },
+      {
+        "name": "bowen-secondary-school",
+        "code": 3043
+      },
+      {
+        "name": "broadrick-secondary-school",
+        "code": 3202
+      },
+      {
+        "name": "bukit-batok-secondary-school",
+        "code": 3044
+      },
+      {
+        "name": "bukit-merah-secondary-school",
+        "code": 3203
+      },
+      {
+        "name": "bukit-panjang-govt-high-school",
+        "code": 3204
+      },
+      {
+        "name": "bukit-view-secondary-school",
+        "code": 3040
+      },
+      {
+        "name": "canberra-secondary-school",
+        "code": 3621
+      },
+      {
+        "name": "catholic-high-school-secondary",
+        "code": 7102
+      },
+      {
+        "name": "chij-st-theresas-convent",
+        "code": 7023
+      },
+      {
+        "name": "changkat-changi-secondary-school",
+        "code": 3402
+      },
+      {
+        "name": "chij-katong-convent",
+        "code": 7008
+      },
+      {
+        "name": "chij-secondary-toa-payoh",
+        "code": 7004
+      },
+      {
+        "name": "chij-st-josephs-convent",
+        "code": 7019
+      },
+      {
+        "name": "chij-st-nicholas-girls-school-secondary",
+        "code": 7118
+      },
+      {
+        "name": "christ-church-secondary-school",
+        "code": 7025
+      },
+      {
+        "name": "chua-chu-kang-secondary-school",
+        "code": 3055
+      },
+      {
+        "name": "chung-cheng-high-school-main",
+        "code": 7104
+      },
+      {
+        "name": "chung-cheng-high-school-yishun",
+        "code": 7105
+      },
+      {
+        "name": "clementi-town-secondary-school",
+        "code": 3029
+      },
+      {
+        "name": "commonwealth-secondary-school",
+        "code": 3012
+      },
+      {
+        "name": "compassvale-secondary-school",
+        "code": 3622
+      },
+      {
+        "name": "crescent-girls-school",
+        "code": 3005
+      },
+      {
+        "name": "damai-secondary-school",
+        "code": 3056
+      },
+      {
+        "name": "deyi-secondary-school",
+        "code": 3228
+      },
+      {
+        "name": "dunearn-secondary-school",
+        "code": 3503
+      },
+      {
+        "name": "dunman-secondary-school",
+        "code": 3207
+      },
+      {
+        "name": "dunman-high-school-secondary",
+        "code": 3101
+      },
+      {
+        "name": "east-spring-secondary-school",
+        "code": 3609
+      },
+      {
+        "name": "edgefield-secondary-school",
+        "code": 3075
+      },
+      {
+        "name": "evergreen-secondary-school",
+        "code": 3623
+      },
+      {
+        "name": "fairfield-methodist-school-secondary",
+        "code": 7309
+      },
+      {
+        "name": "fuhua-secondary-school",
+        "code": 3614
+      },
+      {
+        "name": "geylang-methodist-school-secondary",
+        "code": 7005
+      },
+      {
+        "name": "greendale-secondary-school",
+        "code": 3074
+      },
+      {
+        "name": "greenridge-secondary-school",
+        "code": 3051
+      },
+      {
+        "name": "guangyang-secondary-school",
+        "code": 3238
+      },
+      {
+        "name": "hai-sing-catholic-school",
+        "code": 7031
+      },
+      {
+        "name": "hillgrove-secondary-school",
+        "code": 3048
+      },
+      {
+        "name": "holy-innocents-high-school",
+        "code": 7108
+      },
+      {
+        "name": "hougang-secondary-school",
+        "code": 3046
+      },
+      {
+        "name": "hua-yi-secondary-school",
+        "code": 3226
+      },
+      {
+        "name": "Hwa Chong Institution (Secondary)",
+        "code": 806
+      },
+      {
+        "name": "junyuan-secondary-school",
+        "code": 3608
+      },
+      {
+        "name": "jurong-secondary-school",
+        "code": 3211
+      },
+      {
+        "name": "jurong-west-secondary-school",
+        "code": 3068
+      },
+      {
+        "name": "jurongville-secondary-school",
+        "code": 3063
+      },
+      {
+        "name": "juying-secondary-school",
+        "code": 3066
+      },
+      {
+        "name": "kent-ridge-secondary-school",
+        "code": 3619
+      },
+      {
+        "name": "kranji-secondary-school",
+        "code": 3065
+      },
+      {
+        "name": "kuo-chuan-presbyterian-secondary-school",
+        "code": 7028
+      },
+      {
+        "name": "loyang-view-secondary-school",
+        "code": 3077
+      },
+      {
+        "name": "manjusri-secondary-school",
+        "code": 7307
+      },
+      {
+        "name": "maris-stella-high-school-secondary",
+        "code": 7111
+      },
+      {
+        "name": "marsiling-secondary-school",
+        "code": 3615
+      },
+      {
+        "name": "mayflower-secondary-school",
+        "code": 3031
+      },
+      {
+        "name": "meridian-secondary-school",
+        "code": 3076
+      },
+      {
+        "name": "methodist-girls-school-secondary",
+        "code": 7030
+      },
+      {
+        "name": "montfort-secondary-school",
+        "code": 7011
+      },
+      {
+        "name": "nan-chiau-high-school",
+        "code": 7112
+      },
+      {
+        "name": "yuying-secondary-school",
+        "code": 7027
+      },
+      {
+        "name": "national-junior-college-secondary",
+        "code": 701
+      },
+      {
+        "name": "nan-hua-high-school",
+        "code": 3047
+      },
+      {
+        "name": "nanyang-girls-high-school",
+        "code": 7114
+      },
+      {
+        "name": "naval-base-secondary-school",
+        "code": 3214
+      },
+      {
+        "name": "new-town-secondary-school",
+        "code": 3507
+      },
+      {
+        "name": "ngee-ann-secondary-school",
+        "code": 7310
+      },
+      {
+        "name": "north-vista-secondary-school",
+        "code": 3071
+      },
+      {
+        "name": "northbrooks-secondary-school",
+        "code": 3612
+      },
+      {
+        "name": "northland-secondary-school",
+        "code": 3058
+      },
+      {
+        "name": "orchid-park-secondary-school",
+        "code": 3605
+      },
+      {
+        "name": "outram-secondary-school",
+        "code": 3215
+      },
+      {
+        "name": "pasir-ris-crest-secondary-school",
+        "code": 3613
+      },
+      {
+        "name": "pasir-ris-secondary-school",
+        "code": 3235
+      },
+      {
+        "name": "pei-hwa-secondary-school",
+        "code": 3073
+      },
+      {
+        "name": "peicai-secondary-school",
+        "code": 3232
+      },
+      {
+        "name": "peirce-secondary-school",
+        "code": 3061
+      },
+      {
+        "name": "presbyterian-high-school",
+        "code": 7308
+      },
+      {
+        "name": "punggol-secondary-school",
+        "code": 3070
+      },
+      {
+        "name": "queenstown-secondary-school",
+        "code": 3508
+      },
+      {
+        "name": "queensway-secondary-school",
+        "code": 3007
+      },
+      {
+        "name": "raffles-girls-school-secondary",
+        "code": 3008
+      },
+      {
+        "name": "serangoon-garden-secondary-school",
+        "code": 3509
+      },
+      {
+        "name": "raffles-institution-secondary",
+        "code": 3009
+      },
+      {
+        "name": "river-valley-high-school-secondary",
+        "code": 3103
+      },
+      {
+        "name": "regent-secondary-school",
+        "code": 3618
+      },
+      {
+        "name": "riverside-secondary-school",
+        "code": 3239
+      },
+      {
+        "name": "sembawang-secondary-school",
+        "code": 3606
+      },
+      {
+        "name": "seng-kang-secondary-school",
+        "code": 3607
+      },
+      {
+        "name": "serangoon-secondary-school",
+        "code": 3010
+      },
+      {
+        "name": "singapore-chinese-girls-school",
+        "code": 7014
+      },
+      {
+        "name": "springfield-secondary-school",
+        "code": 3053
+      },
+      {
+        "name": "st-andrews-secondary-school",
+        "code": 7015
+      },
+      {
+        "name": "st-anthonys-canossian-secondary-school",
+        "code": 7016
+      },
+      {
+        "name": "st-gabriels-secondary-school",
+        "code": 7017
+      },
+      {
+        "name": "st-josephs-institution-secondary",
+        "code": 7020
+      },
+      {
+        "name": "st-hildas-secondary-school",
+        "code": 7029
+      },
+      {
+        "name": "st-margarets-school-secondary",
+        "code": 7021
+      },
+      {
+        "name": "st-patricks-school",
+        "code": 7022
+      },
+      {
+        "name": "swiss-cottage-secondary-school",
+        "code": 3304
+      },
+      {
+        "name": "tampines-secondary-school",
+        "code": 3037
+      },
+      {
+        "name": "tanjong-katong-girls-school",
+        "code": 3013
+      },
+      {
+        "name": "tanjong-katong-secondary-school",
+        "code": 3512
+      },
+      {
+        "name": "temasek-secondary-school",
+        "code": 3030
+      },
+      {
+        "name": "temasek-junior-college-secondary",
+        "code": 702
+      },
+      {
+        "name": "unity-secondary-school",
+        "code": 3611
+      },
+      {
+        "name": "zhenghua-secondary-school",
+        "code": 3617
+      },
+      {
+        "name": "victoria-school",
+        "code": 3014
+      },
+      {
+        "name": "west-spring-secondary-school",
+        "code": 3067
+      },
+      {
+        "name": "westwood-secondary-school",
+        "code": 3620
+      },
+      {
+        "name": "whitley-secondary-school",
+        "code": 3015
+      },
+      {
+        "name": "woodgrove-secondary-school",
+        "code": 3616
+      },
+      {
+        "name": "woodlands-ring-secondary-school",
+        "code": 3604
+      },
+      {
+        "name": "woodlands-secondary-school",
+        "code": 3041
+      },
+      {
+        "name": "xinmin-secondary-school",
+        "code": 3050
+      },
+      {
+        "name": "yio-chu-kang-secondary-school",
+        "code": 3222
+      },
+      {
+        "name": "yishun-secondary-school",
+        "code": 3020
+      },
+      {
+        "name": "yishun-town-secondary-school",
+        "code": 3045
+      },
+      {
+        "name": "yuan-ching-secondary-school",
+        "code": 3223
+      },
+      {
+        "name": "yuhua-secondary-school",
+        "code": 3019
+      },
+      {
+        "name": "yusof-ishak-secondary-school",
+        "code": 3307
+      },
+      {
+        "name": "zhonghua-secondary-school",
+        "code": 3240
+      },
+      {
+        "name": "anglochinese-school-barker-road",
+        "code": 7032
+      }
+    ]
+  }
+]
