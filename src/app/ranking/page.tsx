@@ -199,20 +199,27 @@ const FALLBACK_CULTURE = [
 ];
 
 // ---------- Small UI helpers ----------
-function Importance({ label, value, onChange }) {
-  const opts = ['Low','Medium','High'];
+// Single source of truth for importance values
+const IMPORTANCE_OPTS = ['Low', 'Medium', 'High'] as const;
+type ImportanceLevel = typeof IMPORTANCE_OPTS[number];
+
+function Importance(
+  { label, value, onChange }: { label: string; value: ImportanceLevel; onChange: (v: ImportanceLevel) => void }
+) {
   return (
     <div className="space-y-2">
       {label ? <div className="text-sm font-medium text-gray-900">{label}</div> : null}
       <div className="grid grid-cols-3 gap-2">
-        {opts.map(o => (
+        {IMPORTANCE_OPTS.map((o) => (
           <button
             key={o}
             type="button"
             onClick={() => onChange(o)}
             className={`py-2 rounded border text-sm font-medium
               ${value===o ? 'bg-rose-600 text-white border-rose-600' : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'}`}
-          >{o}</button>
+          >
+            {o}
+          </button>
         ))}
       </div>
     </div>
@@ -220,9 +227,11 @@ function Importance({ label, value, onChange }) {
 }
 
 /** Searchable multi-select with live chips; no explicit “Done” needed. */
-function MultiSelect({ placeholder, options, value, onChange }) {
-  const [open,setOpen] = useState(false);
-  const [q,setQ] = useState('');
+function MultiSelect(
+  { placeholder, options, value, onChange }: { placeholder: string; options: string[]; value: string[]; onChange: (next: string[]) => void }
+) {
+  const [open,setOpen] = useState<boolean>(false);
+  const [q,setQ] = useState<string>('');
   const wrapRef = useRef<HTMLDivElement|null>(null);
 
   const filtered = useMemo(
@@ -265,7 +274,7 @@ function MultiSelect({ placeholder, options, value, onChange }) {
             <input
               placeholder="Search…"
               value={q}
-              onChange={e=>setQ(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>)=>setQ(e.target.value)}
               className="w-full rounded border border-gray-200 px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400"
             />
           </div>
@@ -296,9 +305,16 @@ function MultiSelect({ placeholder, options, value, onChange }) {
 }
 
 // Add a new component for single-select dropdown
-function SingleSelect({ placeholder, options, value, onChange }) {
-  const [open, setOpen] = useState(false);
-  const [q, setQ] = useState('');
+type SingleSelectProps = {
+  placeholder: string;
+  options: string[];
+  value: string;
+  onChange: (next: string) => void;
+};
+
+function SingleSelect({ placeholder, options, value, onChange }: SingleSelectProps) {
+  const [open, setOpen] = useState<boolean>(false);
+  const [q, setQ] = useState<string>('');
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   const filtered = useMemo(
@@ -341,7 +357,7 @@ function SingleSelect({ placeholder, options, value, onChange }) {
             <input
               placeholder="Search…"
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
               className="w-full rounded border border-gray-200 px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400"
             />
           </div>
@@ -373,37 +389,38 @@ function SingleSelect({ placeholder, options, value, onChange }) {
 // Utility function to format school names
 function formatSchoolName(name: string): string {
   return name
-    .split('-') // Split by hyphen
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
-    .join(' '); // Join words with a space
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
 // ---------- Main Page ----------
 export default function Page() {
   // Basic info
-  const [psle, setPsle] = useState('');
-  const [gender, setGender] = useState('Any');
-  const [postal, setPostal] = useState('');
-  const [primarySchool, setPrimarySchool] = useState(''); // State for single-select
+  const [psle, setPsle] = useState<string>('');
+  const [gender, setGender] = useState<string>('Any');
+  const [postal, setPostal] = useState<string>('');
+  const [primarySchool, setPrimarySchool] = useState<string>(''); // State for single-select
 
-  // Priorities
-  const [distImp, setDistImp] = useState('Low');
-  const [sportImp, setSportImp] = useState('Low');
-  const [ccaImp, setCcaImp] = useState('Low');
-  const [cultureImp, setCultureImp] = useState('Low');
+  // Priorities (typed to strict union)
+  const [distImp, setDistImp] = useState<ImportanceLevel>('Low');
+  const [sportImp, setSportImp] = useState<ImportanceLevel>('Low');
+  const [ccaImp, setCcaImp] = useState<ImportanceLevel>('Low');
+  const [cultureImp, setCultureImp] = useState<ImportanceLevel>('Low');
+
   const [sports, setSports] = useState<string[]>([]);
   const [ccas, setCcas] = useState<string[]>([]);
   const [cultures, setCultures] = useState<string[]>([]);
 
   // Options (try /api/options; fall back to constants)
-  const [sportsList, setSportsList] = useState(FALLBACK_SPORTS);
-  const [ccaList, setCcaList] = useState(FALLBACK_CCAS);
-  const [cultureList, setCultureList] = useState(FALLBACK_CULTURE);
+  const [sportsList, setSportsList] = useState<string[]>(FALLBACK_SPORTS);
+  const [ccaList, setCcaList] = useState<string[]>(FALLBACK_CCAS);
+  const [cultureList, setCultureList] = useState<string[]>(FALLBACK_CULTURE);
 
   // Results
-  const [summary, setSummary] = useState('');
+  const [summary, setSummary] = useState<string>('');
   const [schools, setSchools] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const hasResults = schools.length > 0;
   const resultsRef = useRef<HTMLDivElement | null>(null);
 
@@ -478,7 +495,7 @@ export default function Page() {
             </label>
             <input
               value={psle}
-              onChange={(e) => setPsle(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPsle(e.target.value)}
               type="number"
               min={4}
               max={32}
@@ -493,7 +510,7 @@ export default function Page() {
             </label>
             <select
               value={gender}
-              onChange={(e) => setGender(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setGender(e.target.value)}
               className="w-full rounded border border-gray-300 px-3 py-2 text-gray-900"
             >
               <option>Any</option>
@@ -509,7 +526,7 @@ export default function Page() {
             </label>
             <input
               value={postal}
-              onChange={(e) => setPostal(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPostal(e.target.value)}
               placeholder="6-digit postal code"
               className="w-full rounded border border-gray-300 px-3 py-2 mb-3 text-gray-900 placeholder:text-gray-400"
             />
@@ -543,21 +560,21 @@ export default function Page() {
           <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 space-y-3">
             <div className="font-medium text-gray-900">Sports Interests</div>
             <Importance label="" value={sportImp} onChange={setSportImp}/>
-            <MultiSelect placeholder="Select sports..." options={sportsList} value={sports} onChange={setSports}/>
+            <MultiSelect placeholder="Select sports..." options={FALLBACK_SPORTS} value={sports} onChange={setSports}/>
           </div>
 
           {/* CCAs */}
           <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 space-y-3">
             <div className="font-medium text-gray-900">CCA Interests</div>
             <Importance label="" value={ccaImp} onChange={setCcaImp}/>
-            <MultiSelect placeholder="Select CCAs..." options={ccaList} value={ccas} onChange={setCcas}/>
+            <MultiSelect placeholder="Select CCAs..." options={FALLBACK_CCAS} value={ccas} onChange={setCcas}/>
           </div>
 
           {/* Culture */}
           <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 space-y-3">
             <div className="font-medium text-gray-900">School Culture</div>
             <Importance label="" value={cultureImp} onChange={setCultureImp}/>
-            <MultiSelect placeholder="Select culture traits..." options={cultureList} value={cultures} onChange={setCultures}/>
+            <MultiSelect placeholder="Select culture traits..." options={FALLBACK_CULTURE} value={cultures} onChange={setCultures}/>
           </div>
         </div>
       </div>
