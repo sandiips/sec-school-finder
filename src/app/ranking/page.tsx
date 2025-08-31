@@ -1,201 +1,692 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
-import useSWR from 'swr';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+// Extracted primary school names from the SQL file
+const PRIMARY_SCHOOLS = [
+  'Admiralty Primary School',
+  'Ahmad Ibrahim Primary School',
+  'Ai Tong School',
+  'Alexandra Primary School',
+  'Anchor Green Primary School',
+  'Anderson Primary School',
+  'Ang Mo Kio Primary School',
+  'Anglo-Chinese School (Junior)',
+  'Anglo-Chinese School (Primary)',
+  'Angsana Primary School',
+  'Beacon Primary School',
+  'Bedok Green Primary School',
+  'Bendemeer Primary School',
+  'Blangah Rise Primary School',
+  'Boon Lay Garden Primary School',
+  'Bukit Panjang Primary School',
+  'Bukit Timah Primary School',
+  'Bukit View Primary School',
+  'Canberra Primary School',
+  'Canossa Catholic Primary School',
+  'Cantonment Primary School',
+  'Casuarina Primary School',
+  'Cedar Primary School',
+  'Changkat Primary School',
+  'CHIJ (Katong) Primary',
+  'CHIJ (Kellock)',
+  'CHIJ Our Lady of Good Counsel',
+  'CHIJ Our Lady of the Nativity',
+  'CHIJ Our Lady Queen of Peace',
+  'CHIJ Primary (Toa Payoh)',
+  'Chongfu School',
+  'Chongzheng Primary School',
+  'Chua Chu Kang Primary School',
+  'Clementi Primary School',
+  'Compassvale Primary School',
+  'Concord Primary School',
+  'Corporation Primary School',
+  'Damai Primary School',
+  'Dazhong Primary School',
+  'De La Salle School',
+  'East Spring Primary School',
+  'Edgefield Primary School',
+  'Elias Park Primary School',
+  'Endeavour Primary School',
+  'Evergreen Primary School',
+  'Fairfield Methodist School (Primary)',
+  'Farrer Park Primary School',
+  'Fengshan Primary School',
+  'Fern Green Primary School',
+  'Fernvale Primary School',
+  'First Toa Payoh Primary School',
+  'Frontier Primary School',
+  'Fuchun Primary School',
+  'Fuhua Primary School',
+  'Gan Eng Seng Primary School',
+  'Geylang Methodist School (Primary)',
+  'Gongshang Primary School',
+  'Greendale Primary School',
+  'Greenridge Primary School',
+  'Greenwood Primary School',
+  'Haig Girls\' School',
+  'Henry Park Primary School',
+  'Holy Innocents\' Primary School',
+  'Hong Wen School',
+  'Horizon Primary School',
+  'Hougang Primary School',
+  'Huamin Primary School',
+  'Innova Primary School',
+  'Jiemin Primary School',
+  'Jing Shan Primary School',
+  'Junyuan Primary School',
+  'Jurong Primary School',
+  'Jurong West Primary School',
+  'Keming Primary School',
+  'Kheng Cheng School',
+  'Kong Hwa School',
+  'Kranji Primary School',
+  'Kuo Chuan Presbyterian Primary School',
+  'Lakeside Primary School',
+  'Lianhua Primary School',
+  'Maha Bodhi School',
+  'Marsiling Primary School',
+  'Marymount Convent School',
+  'Mayflower Primary School',
+  'Mee Toh School',
+  'Meridian Primary School',
+  'Methodist Girls\' School (Primary)',
+  'Montfort Junior School',
+  'Nan Chiau Primary School',
+  'Nan Hua Primary School',
+  'Nanyang Primary School',
+  'Naval Base Primary School',
+  'New Town Primary School',
+  'Ngee Ann Primary School',
+  'North Spring Primary School',
+  'North View Primary School',
+  'North Vista Primary School',
+  'Northland Primary School',
+  'Northoaks Primary School',
+  'Northshore Primary School',
+  'Oasis Primary School',
+  'Opera Estate Primary School',
+  'Palm View Primary School',
+  'Park View Primary School',
+  'Pasir Ris Primary School',
+  'Paya Lebar Methodist Girls\' School (Primary)',
+  'Pei Chun Public School',
+  'Pei Hwa Presbyterian Primary School',
+  'Pei Tong Primary School',
+  'Peiying Primary School',
+  'Pioneer Primary School',
+  'Poi Ching School',
+  'Princess Elizabeth Primary School',
+  'Punggol Cove Primary School',
+  'Punggol Green Primary School',
+  'Punggol Primary School',
+  'Punggol View Primary School',
+  'Qifa Primary School',
+  'Qihua Primary School',
+  'Queenstown Primary School',
+  'Radin Mas Primary School',
+  'Raffles Girls\' Primary School',
+  'Red Swastika School',
+  'River Valley Primary School',
+  'Riverside Primary School',
+  'Rivervale Primary School',
+  'Rosyth School',
+  'Rulang Primary School',
+  'Sembawang Primary School',
+  'Seng Kang Primary School',
+  'Sengkang Green Primary School',
+  'Shuqun Primary School',
+  'Si Ling Primary School',
+  'Singapore Chinese Girls\' Primary School',
+  'South View Primary School',
+  'Springdale Primary School',
+  'St. Andrew\'s Junior School',
+  'St. Anthony\'s Canossian Primary School',
+  'St. Anthony\'s Primary School',
+  'St. Gabriel\'s Primary School',
+  'St. Hilda\'s Primary School',
+  'St. Joseph\'s Institution Junior',
+  'St. Margaret\'s School (Primary)',
+  'St. Stephen\'s School',
+  'Tampines North Primary School',
+  'Tampines Primary School',
+  'Tanjong Katong Primary School',
+  'Tao Nan School',
+  'Teck Ghee Primary School',
+  'Teck Whye Primary School',
+  'Telok Kurau Primary School',
+  'Temasek Primary School',
+  'Townsville Primary School',
+  'Unity Primary School',
+  'Valour Primary School',
+  'Waterway Primary School',
+  'Wellington Primary School',
+  'West Grove Primary School',
+  'West Spring Primary School',
+  'West View Primary School',
+  'Westwood Primary School',
+  'White Sands Primary School',
+  'Woodgrove Primary School',
+  'Woodlands Primary School',
+  'Woodlands Ring Primary School',
+  'Xinghua Primary School',
+  'Xingnan Primary School',
+  'Xinmin Primary School',
+  'Xishan Primary School',
+  'Yangzheng Primary School',
+  'Yew Tee Primary School',
+  'Yio Chu Kang Primary School',
+  'Yishun Primary School',
+  'Yu Neng Primary School',
+  'Yuhua Primary School',
+  'Yumin Primary School',
+  'Zhangde Primary School',
+  'Zhenghua Primary School',
+  'Zhonghua Primary School'
+];
 
-const sports = ['Football', 'Basketball', 'Cricket', 'Tennis', 'Athletics', 'Badminton', 'Chess'];
-const ccas = ['Robotics', 'Math Olympiad', 'Science Competitions', 'Arts', 'Music'];
+// ---- Fallbacks; will be replaced by /api/options if available ----
+const FALLBACK_SPORTS = [
+  'Basketball','Football','Swimming','Tennis','Badminton','Volleyball','Track and Field','Table Tennis','Cross Country'
+];
+const FALLBACK_CCAS = [
+  'Robotics','Science Club','Drama','Choir','Art Club','Debate','Media Club','Computer Club'
+];
+const FALLBACK_CULTURE = [
+  'Discipline','Academic Rigor','Creativity','Service','Leadership','Sportsmanship','Inclusivity','Innovation'
+];
 
-function humanize(slug: string) {
-  return slug
-    .split(/[-_]/g)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+// ---------- Small UI helpers ----------
+function Importance({ label, value, onChange }) {
+  const opts = ['Low','Medium','High'];
+  return (
+    <div className="space-y-2">
+      {label ? <div className="text-sm font-medium text-gray-900">{label}</div> : null}
+      <div className="grid grid-cols-3 gap-2">
+        {opts.map(o => (
+          <button
+            key={o}
+            type="button"
+            onClick={() => onChange(o)}
+            className={`py-2 rounded border text-sm font-medium
+              ${value===o ? 'bg-rose-600 text-white border-rose-600' : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'}`}
+          >{o}</button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export default function SchoolRankingAssistantPage() {
-  const [psle, setPsle] = useState('');
-  const [primary, setPrimary] = useState('');
-  const [home, setHome] = useState('');
-  const [maxDistance, setMaxDistance] = useState('5');
-  const [distImp, setDistImp] = useState<'High' | 'Medium' | 'Low'>('High');
-  const [sportImp, setSportImp] = useState<'High' | 'Medium' | 'Low'>('Medium');
-  const [ccaImp, setCcaImp] = useState<'High' | 'Medium' | 'Low'>('Medium');
-  const [selectedSport, setSelectedSport] = useState('');
-  const [selectedCca, setSelectedCca] = useState('');
+/** Searchable multi-select with live chips; no explicit “Done” needed. */
+function MultiSelect({ placeholder, options, value, onChange }) {
+  const [open,setOpen] = useState(false);
+  const [q,setQ] = useState('');
+  const wrapRef = useRef<HTMLDivElement|null>(null);
 
-  const [rankingResults, setRankingResults] = useState<any[]>([]);
-  const resultsRef = useRef<HTMLDivElement>(null);
-  const { data: primaries } = useSWR('/api/primaries', fetcher);
+  const filtered = useMemo(
+    () => options.filter(o => o.toLowerCase().includes(q.toLowerCase())),
+    [options,q]
+  );
+
+  const toggleValue = (item: string) => {
+    if (value.includes(item)) onChange(value.filter((v: string) => v !== item));
+    else onChange([...value, item]);
+  };
+  const removeChip = (item: string) => onChange(value.filter((v: string) => v !== item));
 
   useEffect(() => {
-    if (rankingResults.length) {
-      resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [rankingResults]);
-
-  async function searchRanking(e: React.FormEvent) {
-    e.preventDefault();
-    const geo = await fetch(`/api/geocode?pincode=${home}`).then((r) => r.json());
-    if (geo.error) return alert(geo.error);
-
-    const weightMap = { High: 0.4, Medium: 0.2, Low: 0.0 };
-    const qs = new URLSearchParams({
-      score: psle,
-      primary,
-      lat: String(geo.lat),
-      lng: String(geo.lng),
-      maxDistanceKm: maxDistance,
-      weightDist: String(weightMap[distImp]),
-      weightSport: String(weightMap[sportImp]),
-      weightCca: String(weightMap[ccaImp]),
-      selected_sport: selectedSport,
-      selected_cca: selectedCca,
-      limitCount: '6',
-    });
-    const data = await fetch(`/api/rank?${qs}`).then((r) => r.json());
-    if (data.error) return alert(data.error);
-    setRankingResults(data);
-  }
+    function onDoc(e: MouseEvent){ if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false); }
+    function onKey(e: KeyboardEvent){ if (e.key === 'Escape') setOpen(false); }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
+  }, []);
 
   return (
-    <main className="space-y-10">
-      <div className="py-2">
-        <div className="container mx-auto px-4 flex space-x-4">
-          <Link href="/" className="px-4 py-2 rounded bg-white text-gray-700 hover:bg-gray-100">Home</Link>
-          <Link href="/ranking" className="px-4 py-2 rounded bg-pink-600 text-white">School Ranking Assistant</Link>
+    <div className="relative" ref={wrapRef}>
+      <button type="button" onClick={() => setOpen(v=>!v)} className="w-full min-h-[42px] rounded border border-gray-300 bg-white px-2 py-2 text-left">
+        {value.length ? (
+          <div className="flex flex-wrap gap-1">
+            {value.map((v: string) => (
+              <span key={v} className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-900">
+                {v}
+                <span onClick={(e)=>{e.stopPropagation(); removeChip(v);}} className="cursor-pointer text-gray-500 hover:text-gray-700" aria-label={`Remove ${v}`}>×</span>
+              </span>
+            ))}
+          </div>
+        ) : <span className="text-gray-500">{placeholder}</span>}
+      </button>
+
+      {open && (
+        <div className="absolute z-20 mt-1 w-full rounded border border-gray-200 bg-white shadow-lg">
+          <div className="p-2 border-b">
+            <input
+              placeholder="Search…"
+              value={q}
+              onChange={e=>setQ(e.target.value)}
+              className="w-full rounded border border-gray-200 px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400"
+            />
+          </div>
+          <ul className="max-h-56 overflow-auto">
+            {filtered.map(opt => {
+              const selected = value.includes(opt);
+              return (
+                <li key={opt}>
+                  <button
+                    type="button"
+                    onClick={() => toggleValue(opt)}
+                    className={`w-full px-3 py-2 text-left text-sm ${selected ? 'bg-rose-50 text-rose-700' : 'hover:bg-gray-50 text-gray-900'}`}
+                  >
+                    <label className="inline-flex items-center gap-2">
+                      <input type="checkbox" readOnly checked={selected}/>
+                      {opt}
+                    </label>
+                  </button>
+                </li>
+              );
+            })}
+            {!filtered.length && <li className="px-3 py-2 text-sm text-gray-500">No matches</li>}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Add a new component for single-select dropdown
+function SingleSelect({ placeholder, options, value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+
+  const filtered = useMemo(
+    () => options.filter((o) => o.toLowerCase().includes(q.toLowerCase())),
+    [options, q]
+  );
+
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, []);
+
+  return (
+    <div className="relative" ref={wrapRef}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full min-h-[42px] rounded border border-gray-300 bg-white px-2 py-2 text-left"
+      >
+        {value ? (
+          <span className="text-gray-900">{value}</span>
+        ) : (
+          <span className="text-gray-500">{placeholder}</span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute z-20 mt-1 w-full rounded border border-gray-200 bg-white shadow-lg">
+          <div className="p-2 border-b">
+            <input
+              placeholder="Search…"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              className="w-full rounded border border-gray-200 px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400"
+            />
+          </div>
+          <ul className="max-h-56 overflow-auto">
+            {filtered.map((opt) => (
+              <li key={opt}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(opt);
+                    setOpen(false);
+                  }}
+                  className={`w-full px-3 py-2 text-left text-sm ${
+                    value === opt ? 'bg-rose-50 text-rose-700' : 'hover:bg-gray-50 text-gray-900'
+                  }`}
+                >
+                  {opt}
+                </button>
+              </li>
+            ))}
+            {!filtered.length && <li className="px-3 py-2 text-sm text-gray-500">No matches</li>}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Utility function to format school names
+function formatSchoolName(name: string): string {
+  return name
+    .split('-') // Split by hyphen
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
+    .join(' '); // Join words with a space
+}
+
+// ---------- Main Page ----------
+export default function Page() {
+  // Basic info
+  const [psle, setPsle] = useState('');
+  const [gender, setGender] = useState('Any');
+  const [postal, setPostal] = useState('');
+  const [primarySchool, setPrimarySchool] = useState(''); // State for single-select
+
+  // Priorities
+  const [distImp, setDistImp] = useState('Low');
+  const [sportImp, setSportImp] = useState('Low');
+  const [ccaImp, setCcaImp] = useState('Low');
+  const [cultureImp, setCultureImp] = useState('Low');
+  const [sports, setSports] = useState<string[]>([]);
+  const [ccas, setCcas] = useState<string[]>([]);
+  const [cultures, setCultures] = useState<string[]>([]);
+
+  // Options (try /api/options; fall back to constants)
+  const [sportsList, setSportsList] = useState(FALLBACK_SPORTS);
+  const [ccaList, setCcaList] = useState(FALLBACK_CCAS);
+  const [cultureList, setCultureList] = useState(FALLBACK_CULTURE);
+
+  // Results
+  const [summary, setSummary] = useState('');
+  const [schools, setSchools] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const hasResults = schools.length > 0;
+  const resultsRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (hasResults) resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [hasResults]);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    const s = Number(psle);
+    if (!Number.isFinite(s) || s < 4 || s > 32) {
+      alert('PSLE score must be between 4 and 32.');
+      return;
+    }
+    if (!/^\d{6}$/.test(String(postal))) {
+      alert('Please enter a valid 6-digit postal code.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const geo = await fetch(`/api/geocode?pincode=${postal}`).then((r) =>
+        r.json()
+      );
+      if (geo.error) throw new Error(geo.error);
+
+      const body = {
+        psle_score: s,
+        gender,
+        postal_code: postal,
+        primary_school: primarySchool, // Include primary school in the payload
+        distance_importance: distImp,
+        sports_importance: sportImp,
+        cca_importance: ccaImp,
+        culture_importance: cultureImp,
+        sports_selected: sports,
+        ccas_selected: ccas,
+        culture_selected: cultures,
+        limit: 6,
+        lat: geo.lat,
+        lng: geo.lng,
+      };
+
+      const res = await fetch('/api/rank', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }).then((r) => r.json());
+
+      if (res.error) throw new Error(res.error);
+      setSummary(res.summary || '');
+      setSchools(res.schools || []);
+    } catch (err: any) {
+      alert(err?.message || String(err));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const FormBlocks = (
+    <form onSubmit={onSubmit} className="space-y-6">
+      {/* 1. Basic Information */}
+      <div className="rounded-xl border bg-white p-5 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">
+          1. Basic Information
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">
+              PSLE Score (4–32)
+            </label>
+            <input
+              value={psle}
+              onChange={(e) => setPsle(e.target.value)}
+              type="number"
+              min={4}
+              max={32}
+              placeholder="Enter score"
+              className="w-full rounded border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">
+              Gender Preference
+            </label>
+            <select
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              className="w-full rounded border border-gray-300 px-3 py-2 text-gray-900"
+            >
+              <option>Any</option>
+              <option>Boys</option>
+              <option>Girls</option>
+              <option>Co-ed</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">
+              Home Postal Code (6-digit)
+            </label>
+            <input
+              value={postal}
+              onChange={(e) => setPostal(e.target.value)}
+              placeholder="6-digit postal code"
+              className="w-full rounded border border-gray-300 px-3 py-2 mb-3 text-gray-900 placeholder:text-gray-400"
+            />
+            <Importance
+              label="How important is distance from home?"
+              value={distImp}
+              onChange={setDistImp}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">
+              Current Primary School
+            </label>
+            <SingleSelect
+              placeholder="Select Primary School"
+              options={PRIMARY_SCHOOLS}
+              value={primarySchool}
+              onChange={setPrimarySchool}
+            />
+          </div>
         </div>
       </div>
 
-      <section ref={resultsRef} className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
-        <div className="md:w-1/3 bg-white p-6 rounded-lg shadow space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">School Ranking Assistant</h2>
-          <form onSubmit={searchRanking} className="space-y-4">
-            <div>
-              <label className="block text-gray-700 mb-1">Expected PSLE Score</label>
-              <input type="number" value={psle} onChange={(e) => setPsle(e.target.value)} required className="w-full p-3 border border-gray-300 rounded text-black" />
-            </div>
+      {/* 2. Tell Us What's Important */}
+      <div className="rounded-xl border bg-white p-5 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">2. Tell Us What’s Important</h3>
 
-            <div>
-              <label className="block text-gray-700 mb-1">Current Primary School</label>
-              <select value={primary} onChange={(e) => setPrimary(e.target.value)} required className="w-full p-3 border border-gray-300 rounded text-black">
-                <option value="">Select Primary School</option>
-                {primaries?.map((p: any) => (
-                  <option key={p.slug} value={p.slug}>{p.name}</option>
-                ))}
-              </select>
-            </div>
+        <div className="space-y-6">
+          {/* Sports */}
+          <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 space-y-3">
+            <div className="font-medium text-gray-900">Sports Interests</div>
+            <Importance label="" value={sportImp} onChange={setSportImp}/>
+            <MultiSelect placeholder="Select sports..." options={sportsList} value={sports} onChange={setSports}/>
+          </div>
 
-            <div>
-              <label className="block text-gray-700 mb-1">Home Base Postal Code</label>
-              <input type="text" value={home} onChange={(e) => setHome(e.target.value)} required className="w-full p-3 border border-gray-300 rounded text-black" />
-            </div>
+          {/* CCAs */}
+          <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 space-y-3">
+            <div className="font-medium text-gray-900">CCA Interests</div>
+            <Importance label="" value={ccaImp} onChange={setCcaImp}/>
+            <MultiSelect placeholder="Select CCAs..." options={ccaList} value={ccas} onChange={setCcas}/>
+          </div>
 
-            <div>
-              <label className="block text-gray-700 mb-1">Max Distance (km)</label>
-              <input type="number" value={maxDistance} onChange={(e) => setMaxDistance(e.target.value)} required className="w-full p-3 border border-gray-300 rounded text-black" />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 mb-1">Importance of Distance</label>
-              <select value={distImp} onChange={(e) => setDistImp(e.target.value as any)} className="w-full p-3 border border-gray-300 rounded text-black">
-                <option>High</option>
-                <option>Medium</option>
-                <option>Low</option>
-              </select>
-            </div>
-
-            <div className="border border-gray-200 rounded p-3">
-              <label className="block text-gray-700 mb-1">Sports Program Importance</label>
-              <select value={sportImp} onChange={(e) => setSportImp(e.target.value as any)} className="w-full p-3 border border-gray-300 rounded text-black">
-                <option>High</option>
-                <option>Medium</option>
-                <option>Low</option>
-              </select>
-              <div className="mt-3">
-                <label className="block text-gray-700 mb-1">Preferred Sport Type</label>
-                <select value={selectedSport} onChange={(e) => setSelectedSport(e.target.value)} className="w-full p-3 border border-gray-300 rounded text-black">
-                  <option value="">All Sports</option>
-                  {sports.map((sport) => (
-                    <option key={sport} value={sport}>{sport}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="border border-gray-200 rounded p-3">
-              <label className="block text-gray-700 mb-1">Other CCA Importance</label>
-              <select value={ccaImp} onChange={(e) => setCcaImp(e.target.value as any)} className="w-full p-3 border border-gray-300 rounded text-black">
-                <option>High</option>
-                <option>Medium</option>
-                <option>Low</option>
-              </select>
-              <div className="mt-3">
-                <label className="block text-gray-700 mb-1">Preferred CCA Type</label>
-                <select value={selectedCca} onChange={(e) => setSelectedCca(e.target.value)} className="w-full p-3 border border-gray-300 rounded text-black">
-                  <option value="">All CCAs</option>
-                  {ccas.map((cca) => (
-                    <option key={cca} value={cca}>{cca}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <button type="submit" className="w-full bg-pink-600 hover:bg-pink-700 text-white p-3 rounded">
-              Generate My School Rankings
-            </button>
-          </form>
+          {/* Culture */}
+          <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 space-y-3">
+            <div className="font-medium text-gray-900">School Culture</div>
+            <Importance label="" value={cultureImp} onChange={setCultureImp}/>
+            <MultiSelect placeholder="Select culture traits..." options={cultureList} value={cultures} onChange={setCultures}/>
+          </div>
         </div>
+      </div>
 
-        <div className="md:w-2/3 space-y-6">
-          {rankingResults.length === 0 ? (
-            <p className="text-gray-600">
-              Answer the questions and click “Generate My School Rankings”.
-            </p>
-          ) : (
-            rankingResults.map((s, i) => {
-              const name = s.full_name || humanize(s.name);
-              const km = s.distance_km != null
-                ? s.distance_km.toFixed(1)
-                : (s.distance_m / 1000).toFixed(1);
-              const pg = s.posting_group != null ? `PG ${s.posting_group}` : 'IP';
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full rounded-lg bg-rose-600 px-4 py-3 font-medium text-white hover:bg-rose-700 disabled:opacity-60"
+      >
+        {loading ? 'Finding your matches…' : '✨ Find My Top 6 Schools'}
+      </button>
+    </form>
+  );
 
-              return (
-                <div key={s.code} className="bg-white p-6 rounded-lg shadow space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="text-xl font-bold text-pink-600">{i + 1}</div>
-                      <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-orange-50">
+      {/* ===== Top App Header with logo + nav ===== */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.svg"
+              alt="School Advisor"
+              width={160}
+              height={40}
+              priority
+              className="h-10 w-auto"
+            />
+            <nav className="ml-2 flex items-center gap-2">
+              <Link
+                href="/"
+                className="px-3 py-1.5 rounded text-sm font-medium text-gray-800 hover:bg-gray-100"
+              >
+                Home
+              </Link>
+              <Link
+                href="/ranking"
+                className="px-3 py-1.5 rounded text-sm font-medium text-gray-800 hover:text-white hover:bg-pink-600 transition-colors"
+              >
+                School Assistant
+              </Link>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {/* ===== Title strip ===== */}
+      <header className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-900">School Assistant</h1>
+        <p className="mt-2 text-gray-700">Find your perfect Top 6 secondary schools with AI-powered insights</p>
+        <span className="mt-3 inline-block rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">Premium Feature</span>
+      </header>
+
+      {/* Layout shifts once we have results */}
+      {!hasResults ? (
+        // Centered form before results
+        <section className="container mx-auto max-w-4xl px-4 pb-16 flex justify-center">
+          <div className="w-full max-w-xl">{FormBlocks}</div>
+        </section>
+      ) : (
+        // 2-column grid after results — robust, breakpoint-safe
+        <section
+          ref={resultsRef}
+          className="container mx-auto px-4 pb-16 grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
+          {/* Left sticky filters */}
+          <aside className="md:col-span-1 md:sticky md:top-6 self-start">
+            {FormBlocks}
+          </aside>
+
+          {/* Right: AI summary + ranked cards */}
+          <div className="md:col-span-2 space-y-6">
+            {/* AI Summary */}
+            {summary && (
+              <div className="rounded-xl border bg-blue-50 p-6">
+                <div className="mb-2 text-lg font-semibold text-gray-900">🤖 AI Recommendation Summary</div>
+                <p className="text-gray-900">{summary}</p>
+              </div>
+            )}
+
+            <h2 className="text-xl font-semibold text-gray-900">Your Top 6 School Matches</h2>
+
+            {schools.map((s, i) => (
+              <div key={s.code || i} className="rounded-xl border bg-white p-6 shadow-sm">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 font-semibold text-rose-700">
+                      {i + 1}
                     </div>
-                    <span className="text-gray-500">{km} km</span>
+                    <div>
+                      {/* Use formatSchoolName to format the school name */}
+                      <div className="text-lg font-semibold text-gray-900">{formatSchoolName(s.name)}</div>
+                      <div className="text-sm text-gray-700">{s.address}</div>
+                    </div>
                   </div>
-
-                  <div className="flex gap-2">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      s.is_affiliated ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {s.is_affiliated ? 'Affiliated' : 'Non‑affiliated'}
-                    </span>
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                      {pg}
-                    </span>
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-                      Cut‑off: {s.cop_max_score}
-                    </span>
+                  <div className="text-sm text-gray-700">
+                    {typeof s.distance_km === 'number' ? s.distance_km.toFixed(1) : ''} km
                   </div>
-
-                  <p className="text-gray-600">
-                    Ranked #{i + 1} based on your preferences. Located {km} km from home (within your {maxDistance} km). Cut‑off point: <strong>{s.cop_max_score}</strong>.
-                  </p>
                 </div>
-              );
-            })
-          )}
-        </div>
-      </section>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {s.is_affiliated !== undefined && (
+                    <span className={`rounded-full px-2 py-1 text-xs ${s.is_affiliated?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}`}>
+                      {s.is_affiliated ? 'Affiliated' : 'Non-affiliated'}
+                    </span>
+                  )}
+                  
+                    <span className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800">
+                      {s.posting_group == null
+                        ? 'Integrated Program'
+                        : `Posting Group ${s.posting_group}`}
+                      </span>
+                  
+                  {s.cop_max_score !== undefined && (
+                    <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs text-yellow-800">Cut-off: {s.cop_max_score}</span>
+                  )}
+                </div>
+
+                {s.why && (
+                  <div className="mt-4 rounded-lg bg-blue-50 p-4">
+                    <div className="mb-1 text-sm font-semibold text-gray-900">Why this school could be a great fit</div>
+                    <p className="text-sm text-gray-900">{s.why}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
