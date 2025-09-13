@@ -189,17 +189,16 @@ const PRIMARY_SCHOOLS = [
 
 // ---- Fallbacks; will be replaced by /api/options if available ----
 const FALLBACK_SPORTS = [
-  'Basketball','Football','Swimming','Tennis','Badminton','Volleyball','Track and Field','Table Tennis','Cross Country'
+  'Badminton','Basketball','Football','Hockey','Swimming','Netball','SepakTakraw','Softball','Table Tennis','Tennis','Volleyball','Water Polo','Rugby','Squash'
 ];
 const FALLBACK_CCAS = [
   'Robotics','Science Club','Drama','Choir','Art Club','Debate','Media Club','Computer Club'
 ];
 const FALLBACK_CULTURE = [
-  'Discipline','Academic Rigor','Creativity','Service','Leadership','Sportsmanship','Inclusivity','Innovation'
+  'Service/Care','Integrity/Moral Courage','Excellence','Compassion/Empathy','Leadership','Faith-based Character','People-centred Respect','Passion & Lifelong Learning','Responsibility/Accountability','Courage / Tenacity','Diversity & Inclusiveness','Innovation / Pioneering','Accountability / Stewardship','Holistic Development','Scholarship & Leadership Excellence'
 ];
 
 // ---------- Small UI helpers ----------
-// Single source of truth for importance values
 const IMPORTANCE_OPTS = ['Low', 'Medium', 'High'] as const;
 type ImportanceLevel = typeof IMPORTANCE_OPTS[number];
 
@@ -226,7 +225,6 @@ function Importance(
   );
 }
 
-/** Searchable multi-select with live chips; no explicit “Done” needed. */
 function MultiSelect(
   { placeholder, options, value, onChange }: { placeholder: string; options: string[]; value: string[]; onChange: (next: string[]) => void }
 ) {
@@ -250,7 +248,10 @@ function MultiSelect(
     function onKey(e: KeyboardEvent){ if (e.key === 'Escape') setOpen(false); }
     document.addEventListener('mousedown', onDoc);
     document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
   }, []);
 
   return (
@@ -304,7 +305,7 @@ function MultiSelect(
   );
 }
 
-// Add a new component for single-select dropdown
+// Single-select
 type SingleSelectProps = {
   placeholder: string;
   options: string[];
@@ -394,15 +395,65 @@ function formatSchoolName(name: string): string {
     .join(' ');
 }
 
+/* ------------------- NEW: Sport highlighters (visual only) ------------------- */
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+function buildSportsRegex(list: string[]) {
+  const alts = [...list].sort((a,b)=>b.length-a.length).map(escapeRegExp).join('|');
+  return new RegExp(`\\b(${alts})\\b`, 'gi');
+}
+function getMentionedSports(text: string, list: string[]): string[] {
+  if (!text) return [];
+  const rx = buildSportsRegex(list);
+  const seen = new Set<string>();
+  const found: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = rx.exec(text)) !== null) {
+    const raw = m[0];
+    const canonical = list.find(s => s.toLowerCase() === raw.toLowerCase()) || raw;
+    const key = canonical.toLowerCase();
+    if (!seen.has(key)) { seen.add(key); found.push(canonical); }
+  }
+  return found;
+}
+function highlightSports(text: string, list: string[]) {
+  if (!text) return <span className="text-gray-500">No sports explanation available.</span>;
+  const rx = buildSportsRegex(list);
+  const parts = text.split(rx);
+  let idx = 0;
+  return (
+    <>
+      {parts.map((p, i) => {
+        const isMatch = i % 2 === 1;
+        if (!isMatch) return <span key={`t-${idx++}`}>{p}</span>;
+        return (
+          <mark
+            key={`m-${idx++}`}
+            className="rounded bg-green-200/70 px-1 py-0.5 text-green-900"
+          >
+            {p}
+          </mark>
+        );
+      })}
+    </>
+  );
+}
+/* --------------------------------------------------------------------------- */
+
 // ---------- Main Page ----------
 export default function Page() {
   // Basic info
   const [psle, setPsle] = useState<string>('');
   const [gender, setGender] = useState<string>('Any');
   const [postal, setPostal] = useState<string>('');
-  const [primarySchool, setPrimarySchool] = useState<string>(''); // State for single-select
+  const [primarySchool, setPrimarySchool] = useState<string>('');
 
-  // Priorities (typed to strict union)
+  // Validation states
+  const [isPsleValid, setIsPsleValid] = useState<boolean>(false);
+  const [isPostalValid, setIsPostalValid] = useState<boolean>(false);
+
+  // Priorities
   const [distImp, setDistImp] = useState<ImportanceLevel>('Low');
   const [sportImp, setSportImp] = useState<ImportanceLevel>('Low');
   const [ccaImp, setCcaImp] = useState<ImportanceLevel>('Low');
@@ -411,6 +462,9 @@ export default function Page() {
   const [sports, setSports] = useState<string[]>([]);
   const [ccas, setCcas] = useState<string[]>([]);
   const [cultures, setCultures] = useState<string[]>([]);
+
+  const [summaryExplanation, setSummaryExplanation] = useState<string>('');
+  const [schoolExplanations, setSchoolExplanations] = useState<Record<string, string>>({});
 
   // Options (try /api/options; fall back to constants)
   const [sportsList, setSportsList] = useState<string[]>(FALLBACK_SPORTS);
@@ -424,6 +478,18 @@ export default function Page() {
   const hasResults = schools.length > 0;
   const resultsRef = useRef<HTMLDivElement | null>(null);
 
+  // Validate inputs
+  useEffect(() => {
+    const psleNum = Number(psle);
+    setIsPsleValid(!isNaN(psleNum) && psleNum >= 4 && psleNum <= 30);
+    setIsPostalValid(/^\d{6}$/.test(postal));
+  }, [psle, postal]);
+
+  const isFormValid =
+    isPsleValid &&
+    isPostalValid &&
+    primarySchool !== '';
+
   useEffect(() => {
     if (hasResults) resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [hasResults]);
@@ -431,13 +497,8 @@ export default function Page() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const s = Number(psle);
-    if (!Number.isFinite(s) || s < 4 || s > 32) {
-      alert('PSLE score must be between 4 and 32.');
-      return;
-    }
-    if (!/^\d{6}$/.test(String(postal))) {
-      alert('Please enter a valid 6-digit postal code.');
+    if (!isFormValid) {
+      alert('Please ensure all inputs are valid before submitting.');
       return;
     }
 
@@ -449,10 +510,10 @@ export default function Page() {
       if (geo.error) throw new Error(geo.error);
 
       const body = {
-        psle_score: s,
+        psle_score: Number(psle),
         gender,
         postal_code: postal,
-        primary_school: primarySchool, // Include primary school in the payload
+        primary_school: primarySchool,
         distance_importance: distImp,
         sports_importance: sportImp,
         cca_importance: ccaImp,
@@ -460,7 +521,7 @@ export default function Page() {
         sports_selected: sports,
         ccas_selected: ccas,
         culture_selected: cultures,
-        limit: 6,
+        limit: 10,
         lat: geo.lat,
         lng: geo.lng,
       };
@@ -472,8 +533,34 @@ export default function Page() {
       }).then((r) => r.json());
 
       if (res.error) throw new Error(res.error);
-      setSummary(res.summary || '');
+      setSummaryExplanation(res.summary || '');
       setSchools(res.schools || []);
+
+      // /api/explain call
+      const explainPayload = {
+        schools: (res.schools || []).slice(0, 6).map((s: any) => ({
+          code: String(s.code ?? s.school_code ?? ''),
+          name: s.name ? formatSchoolName(s.name) : undefined,
+        })),
+        sports_selected: (sports && sports.length) ? sports : undefined,
+        debug: true,
+      };
+      console.log('[explain] sending payload →', explainPayload);
+
+      const explainRes = await fetch('/api/explain?debug=1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(explainPayload),
+      }).then((r) => r.json());
+
+      console.log('[explain] response →', explainRes);
+
+      setSummaryExplanation(explainRes.overall || '');
+      setSchoolExplanations(
+        Object.fromEntries(
+          (explainRes.per_school || []).map((r: any) => [r.code, r.explanation])
+        )
+      );
     } catch (err: any) {
       alert(err?.message || String(err));
     } finally {
@@ -491,7 +578,7 @@ export default function Page() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-1">
-              PSLE Score (4–32)
+              PSLE Score (4–30)
             </label>
             <input
               value={psle}
@@ -500,8 +587,13 @@ export default function Page() {
               min={4}
               max={32}
               placeholder="Enter score"
-              className="w-full rounded border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400"
+              className={`w-full rounded border px-3 py-2 text-black ${
+                isPsleValid ? 'border-gray-300' : 'border-red-500'
+              }`}
             />
+            {!isPsleValid && (
+              <p className="text-sm text-red-500">PSLE score must be a number between 4 and 30.</p>
+            )}
           </div>
 
           <div>
@@ -528,13 +620,13 @@ export default function Page() {
               value={postal}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPostal(e.target.value)}
               placeholder="6-digit postal code"
-              className="w-full rounded border border-gray-300 px-3 py-2 mb-3 text-gray-900 placeholder:text-gray-400"
+              className={`w-full rounded border px-3 py-2 text-black ${
+                isPostalValid ? 'border-gray-300' : 'border-red-500'
+              }`}
             />
-            <Importance
-              label="How important is distance from home?"
-              value={distImp}
-              onChange={setDistImp}
-            />
+            {!isPostalValid && (
+              <p className="text-sm text-red-500">Please enter a valid 6-digit Singapore postal code.</p>
+            )}
           </div>
 
           <div>
@@ -547,6 +639,9 @@ export default function Page() {
               value={primarySchool}
               onChange={setPrimarySchool}
             />
+            {primarySchool === '' && (
+              <p className="text-sm text-red-500">Please select your primary school.</p>
+            )}
           </div>
         </div>
       </div>
@@ -581,10 +676,10 @@ export default function Page() {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={!isFormValid || loading}
         className="w-full rounded-lg bg-rose-600 px-4 py-3 font-medium text-white hover:bg-rose-700 disabled:opacity-60"
       >
-        {loading ? 'Finding your matches…' : '✨ Find My Top 6 Schools'}
+        {loading ? 'Finding your matches…' : '✨ Find Schools for Me ✨'}
       </button>
     </form>
   );
@@ -635,7 +730,7 @@ export default function Page() {
           <div className="w-full max-w-xl">{FormBlocks}</div>
         </section>
       ) : (
-        // 2-column grid after results — robust, breakpoint-safe
+        // 2-column grid after results
         <section
           ref={resultsRef}
           className="container mx-auto px-4 pb-16 grid grid-cols-1 md:grid-cols-3 gap-8"
@@ -648,59 +743,164 @@ export default function Page() {
           {/* Right: AI summary + ranked cards */}
           <div className="md:col-span-2 space-y-6">
             {/* AI Summary */}
-            {summary && (
-              <div className="rounded-xl border bg-blue-50 p-6">
-                <div className="mb-2 text-lg font-semibold text-gray-900">🤖 AI Recommendation Summary</div>
-                <p className="text-gray-900">{summary}</p>
+            {summaryExplanation && (
+              <div className="bg-blue-50 p-4 rounded-lg shadow text-gray-700">
+                <h2 className="text-xl font-semibold mb-2">Ranking Summary </h2>
+                <p>{summaryExplanation}</p>
               </div>
             )}
 
             <h2 className="text-xl font-semibold text-gray-900">Your Top 6 School Matches</h2>
 
-            {schools.map((s, i) => (
-              <div key={s.code || i} className="rounded-xl border bg-white p-6 shadow-sm">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 font-semibold text-rose-700">
-                      {i + 1}
-                    </div>
-                    <div>
-                      {/* Use formatSchoolName to format the school name */}
-                      <div className="text-lg font-semibold text-gray-900">{formatSchoolName(s.name)}</div>
-                      <div className="text-sm text-gray-700">{s.address}</div>
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-700">
-                    {typeof s.distance_km === 'number' ? s.distance_km.toFixed(1) : ''} km
-                  </div>
-                </div>
+            {schools.map((s, i) => {
+              const sportsText = schoolExplanations[s.code] || '';
+              const mentioned = getMentionedSports(sportsText, FALLBACK_SPORTS);
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {s.is_affiliated !== undefined && (
-                    <span className={`rounded-full px-2 py-1 text-xs ${s.is_affiliated?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}`}>
-                      {s.is_affiliated ? 'Affiliated' : 'Non-affiliated'}
-                    </span>
-                  )}
-                  
-                    <span className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800">
-                      {s.posting_group == null
-                        ? 'Integrated Program'
-                        : `Posting Group ${s.posting_group}`}
+              return (
+                <div key={s.row_id} className="rounded-xl border bg-white p-6 shadow-sm">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 font-semibold text-rose-700">
+                        {i + 1}
+                      </div>
+                      <div>
+                        <div className="text-lg font-semibold text-gray-900">{formatSchoolName(s.name)}</div>
+                        <div className="text-sm text-gray-700">{s.address}</div>
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-700">
+                      {typeof s.distance_km === 'number' ? s.distance_km.toFixed(1) : ''} km
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {s.is_affiliated !== undefined && (
+                      <span className={`rounded-full px-2 py-1 text-xs ${s.is_affiliated?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}`}>
+                        {s.is_affiliated ? 'Affiliated' : 'Non-affiliated'}
                       </span>
-                  
-                  {s.cop_max_score !== undefined && (
-                    <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs text-yellow-800">Cut-off: {s.cop_max_score}</span>
+                    )}
+                    
+                    <span className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800">
+                      {s.track === 'IP'
+                        ? 'Integrated Program'
+                        : s.track === 'PG3_AFF'
+                        ? 'Posting Group 3 (Affiliated)'
+                        : s.track === 'PG2_AFF'
+                        ? 'Posting Group 2 (Affiliated)'
+                        : s.track === 'PG1_AFF'
+                        ? 'Posting Group 1 (Affiliated)'
+                        : s.posting_group != null
+                        ? `Posting Group ${s.posting_group}`
+                        : 'Posting Group'}
+                    </span>
+                    
+                    {s.cop_max_score !== undefined && (
+                      <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs text-yellow-800"> {s.track === 'IP'
+                        ? `IP Cut-off: ${s.cop_max_score}`
+                        : s.track === 'PG3_AFF'|| s.track === 'PG2_AFF' || s.track === 'PG1_AFF'
+                        ? `Affiliated Cut-off: ${s.cop_max_score}`
+                        : `Cut-off: ${s.cop_max_score}`
+                      }</span>
+                    )}
+                  </div>
+
+                  {s.why && (
+                    <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
+                      <div className="mb-2 text-sm font-semibold text-gray-900">
+                        Why this school could be a great fit
+                      </div>
+
+                      {/* ===== MOBILE: horizontal rail (3 stretched boxes) ===== */}
+                      <div className="md:hidden -mx-4 px-4">
+                        <div
+                          className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory"
+                          aria-label="School strengths: Sports, CCAs, Culture"
+                        >
+                          {/* SPORTS */}
+                          <section className="min-w-[85%] snap-start rounded-lg border border-green-200 bg-green-50 p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-semibold text-green-900 uppercase tracking-wide">Sports</span>
+                              <div className="flex flex-wrap gap-1">
+                                {mentioned.map(sp => (
+                                  <span
+                                    key={sp}
+                                    className="rounded-full bg-green-200 text-green-900 px-2 py-0.5 text-xs font-medium"
+                                  >
+                                    {sp}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-sm leading-relaxed text-green-900">
+                              {sportsText
+                                ? highlightSports(sportsText, FALLBACK_SPORTS)
+                                : <span className="text-green-800/70">No sports explanation available.</span>}
+                            </p>
+                          </section>
+
+                          {/* CCAs (placeholder) */}
+                          <section className="min-w-[85%] snap-start rounded-lg border border-indigo-200 bg-indigo-50 p-3">
+                            <div className="text-sm font-semibold text-indigo-900 uppercase tracking-wide mb-2">CCAs</div>
+                            <p className="text-sm leading-relaxed text-indigo-900">
+                              We’ll add CCA performance highlights here (e.g., robotics medals, performing arts awards).
+                            </p>
+                          </section>
+
+                          {/* Culture (placeholder) */}
+                          <section className="min-w-[85%] snap-start rounded-lg border border-amber-200 bg-amber-50 p-3">
+                            <div className="text-sm font-semibold text-amber-900 uppercase tracking-wide mb-2">Culture</div>
+                            <p className="text-sm leading-relaxed text-amber-900">
+                              We’ll summarise culture fit based on your chosen traits (e.g., leadership, service, excellence).
+                            </p>
+                          </section>
+                        </div>
+                      </div>
+
+                      {/* ===== DESKTOP: 3-column grid ===== */}
+                      <div className="hidden md:grid md:grid-cols-3 md:gap-4">
+                        {/* SPORTS */}
+                        <section className="rounded-lg border border-green-200 bg-green-50 p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-semibold text-green-900 uppercase tracking-wide">Sports</span>
+                            <div className="flex flex-wrap gap-1">
+                              {mentioned.map(sp => (
+                                <span
+                                  key={sp}
+                                  className="rounded-full bg-green-200 text-green-900 px-2 py-0.5 text-xs font-medium"
+                                >
+                                  {sp}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-sm leading-relaxed text-green-900">
+                            {sportsText
+                              ? highlightSports(sportsText, FALLBACK_SPORTS)
+                              : <span className="text-green-800/70">No sports explanation available.</span>}
+                          </p>
+                        </section>
+
+                        {/* CCAs (placeholder) */}
+                        <section className="rounded-lg border border-indigo-200 bg-indigo-50 p-3">
+                          <div className="text-sm font-semibold text-indigo-900 uppercase tracking-wide mb-2">CCAs</div>
+                          <p className="text-sm leading-relaxed text-indigo-900">
+                            We’ll add CCA performance highlights here (e.g., robotics medals, performing arts awards).
+                          </p>
+                        </section>
+
+                        {/* Culture (placeholder) */}
+                        <section className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+                          <div className="text-sm font-semibold text-amber-900 uppercase tracking-wide mb-2">Culture</div>
+                          <p className="text-sm leading-relaxed text-amber-900">
+                            We’ll summarise culture fit based on your chosen traits (e.g., leadership, service, excellence).
+                          </p>
+                        </section>
+                      </div>
+                    </div>
                   )}
                 </div>
-
-                {s.why && (
-                  <div className="mt-4 rounded-lg bg-blue-50 p-4">
-                    <div className="mb-1 text-sm font-semibold text-gray-900">Why this school could be a great fit</div>
-                    <p className="text-sm text-gray-900">{s.why}</p>
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}

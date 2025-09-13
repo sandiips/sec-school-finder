@@ -10,14 +10,27 @@ const supabase = createClient(
 // Map UI “importance” to weights (tweak freely)
 const toWeight = (v: string) => (v === 'High' ? 0.4 : v === 'Medium' ? 0.2 : 0.0);
 
+// very small slugifier aligned with your DB slugs
+function slugify(input: string | null | undefined): string | null {
+  if (!input) return null;
+  return input
+    .toLowerCase()
+    .replace(/’/g, "'")            // normalize curly apostrophes
+    .replace(/&/g, ' and ')
+    .replace(/\./g, '')
+    .replace(/[^a-z0-9'\s-]/g, '') // keep alnum, spaces, hyphens, apostrophes
+    .trim()
+    .replace(/['\s]+/g, '-')       // spaces/apostrophes -> hyphen
+    .replace(/-+/g, '-');
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    // Payload fields from the page (keep names in sync with the UI) :contentReference[oaicite:1]{index=1}
     const {
       psle_score,
-      gender, // 'Any' | 'Boys' | 'Girls' | 'Co-ed'
+      gender,                // 'Any' | 'Boys' | 'Girls' | 'Co-ed'
       postal_code,
       distance_importance,
       sports_importance,
@@ -28,10 +41,10 @@ export async function POST(req: Request) {
       culture_selected = [],
       limit = 6,
       lat,
-      lng
+      lng,
+      primary_school        // <— from UI
     } = body;
 
-    // Basic validation (same constraints as the UI) :contentReference[oaicite:2]{index=2}
     if (!Number.isFinite(psle_score) || psle_score < 4 || psle_score > 32) {
       return NextResponse.json({ error: 'PSLE score must be between 4 and 32.' }, { status: 400 });
     }
@@ -42,16 +55,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing lat/lng' }, { status: 400 });
     }
 
-    // Weights
     const weight_dist = toWeight(distance_importance);
     const weight_sport = toWeight(sports_importance);
     const weight_cca = toWeight(cca_importance);
     const weight_culture = toWeight(culture_importance);
 
-    // Sensible defaults
-    const max_distance_km = 10; // you can surface this in the UI later
+    const max_distance_km = 10;
 
-    // Call RPC
+    const primary_slug = slugify(primary_school);
+
     const { data, error } = await supabase.rpc('rank_schools1', {
       user_score: psle_score,
       user_lat: lat,
@@ -65,7 +77,8 @@ export async function POST(req: Request) {
       weight_sport,
       weight_cca,
       weight_culture,
-      limit_count: limit
+      limit_count: limit,
+      primary_slug           // <— NEW
     });
 
     if (error) {
@@ -73,20 +86,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Ranking failed' }, { status: 500 });
     }
 
-    // Shape response for the UI card renderer (badges + “why” placeholder) :contentReference[oaicite:3]{index=3}
-    const schools = (data || []).map((row: any) => ({
+    const schools = (data || []).map((row: any) => {
+  const row_id = `${row.code}-${row.track ?? 'NA'}-${row.posting_group ?? 'IP'}`;
+  return {
+      row_id,
       code: row.code,
       name: row.name,
       address: row.address,
       distance_km: row.distance_km,
       posting_group: row.posting_group,
+      track: row.track,                 // 'IP' | 'PG3_AFF' | 'PG3_OPEN'
       cop_max_score: row.cop_max_score,
       is_affiliated: row.is_affiliated,
       sports_matches: row.sports_matches || [],
       ccas_matches: row.ccas_matches || [],
       culture_matches: row.culture_matches || [],
       composite_score: row.composite_score,
-      // Optional: a very short “why”; later replace with LLM-generated text
       why:
         row.why ??
         [
@@ -94,20 +109,18 @@ export async function POST(req: Request) {
           row.ccas_matches?.length ? `${row.ccas_matches.length} CCA match${row.ccas_matches.length > 1 ? 'es' : ''}` : null,
           row.culture_matches?.length ? `${row.culture_matches.length} culture match${row.culture_matches.length > 1 ? 'es' : ''}` : null,
           Number.isFinite(row.distance_km) ? `${row.distance_km.toFixed(1)} km from home` : null
-        ]
-          .filter(Boolean)
-          .join(' • ')
-    }));
+        ].filter(Boolean).join(' • ')
+      };
+    });
 
-    // Placeholder summary (later: call an LLM microservice to expand this) :contentReference[oaicite:4]{index=4}
     const summary =
       schools.length === 0
         ? 'No suitable matches found within your distance and preference settings.'
-        : `These schools were ranked using your distance preference, selected sports/CCAs and culture traits, and recent COP cut-offs.`;
+        : `These schools were ranked using your distance preference, selected sports/CCAs and culture traits, and COP cut-offs (affiliation-aware).`;
 
     return NextResponse.json({ summary, schools });
   } catch (err: any) {
     console.error(err);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
-    }
+  }
 }

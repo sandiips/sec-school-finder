@@ -49,7 +49,8 @@ export default function HomePage() {
       primary,
       lat: String(geo.lat),
       lng: String(geo.lng),
-      maxDistanceKm: "5",
+      inYear: '2024',
+      maxDistanceKm: "10",
     });
 
     const data = await fetch(`/api/search?${params}`).then((r) => r.json());
@@ -233,28 +234,37 @@ export default function HomePage() {
                       {s?.address && (
                         <p className="mt-1 text-sm text-gray-600">{s.address}</p>
                       )}
-                      <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                        {s?.is_affiliated !== undefined && (
-                          <span
-                            className={`px-2 py-1 rounded-full ${
-                              s.is_affiliated
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {s.is_affiliated ? "Affiliated" : "Non‑affiliated"}
-                          </span>
-                        )}
-                        {pg && (
-                          <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-800">
-                            {pg}
-                          </span>
-                        )}
-                        {s?.cop_max_score && (
-                          <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
-                            Cut‑off: {s.cop_max_score}
-                          </span>
-                        )}
+                      <div className="flex flex-wrap gap-2">
+  {/* Affiliated badge */}
+  <span className={`px-2 py-1 text-xs rounded-full ${
+    s.is_affiliated ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+  }`}>
+    {s.is_affiliated ? 'Affiliated' : 'Non-affiliated'}
+  </span>
+
+  {/* Stream tag */}
+  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+    {s.posting_group == null ? 'Integrated Program' : `Posting Group ${s.posting_group}`}
+  </span>
+
+ {/* Cut-off badges (show up to three) */}
+{s.ip_cutoff_max != null && (
+  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+    Integrated Program Cut-off: {s.ip_cutoff_max}
+  </span>
+)}
+
+{s.aff_pg_cutoff_max != null && (
+  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+    Affiliated Cut-off: {s.aff_pg_cutoff_max}
+  </span>
+)}
+
+{s.open_pg_cutoff_max != null && s.open_pg != null && (
+  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+    Posting Group {s.open_pg} Cut-off: {s.open_pg_cutoff_max}
+  </span>
+)}
                       </div>
                     </div>
                     <span className="text-sm text-gray-500 whitespace-nowrap">{km} km</span>
