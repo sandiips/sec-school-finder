@@ -933,7 +933,7 @@ setCcaExpl(
                           <p className="text-sm leading-relaxed text-indigo-900">
                             {(ccaExpl[String(s.code)] || '').trim()
                               ? ccaExpl[String(s.code)]
-                              : <span className="text-indigo-900/70">Couldn't find a fit with sports selected</span>}
+                              : <span className="text-indigo-900/70">Couldn't find a fit with CCAs selected</span>}
                           </p>
                         </section>
 
