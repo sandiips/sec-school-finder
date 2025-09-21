@@ -1,3 +1,4 @@
+
 /* =========================
    Base school rows
    ========================= */
@@ -58,91 +59,84 @@ user_aff as (
 ),
 
 /* =========================
-   Expand COP ranges for target year
-   posting_group: NULL => IP, 3 => PG3
+   Expand COP ranges for latest available year per school
+   posting_group: NULL => IP, 3 => PG3, 2 => PG2, 1 => PG1
    ========================= */
 cop_expanded as (
   select
     b.code,
-    (x->>'year')::int as year,
-    nullif((x->>'posting_group'),'')::int as posting_group,  -- NULL for IP
-    (x->>'nonaffiliated_min_score')::int as na_min,
-    (x->>'nonaffiliated_max_score')::int as na_max,
-    (x->>'affiliated_min_score')::int   as a_min,
-    (x->>'affiliated_max_score')::int   as a_max
+    (x.elem->>'year')::int as year,
+    nullif((x.elem->>'posting_group'),'')::int as posting_group,  -- NULL for IP
+    (x.elem->>'nonaffiliated_min_score')::int as na_min,
+    (x.elem->>'nonaffiliated_max_score')::int as na_max,
+    (x.elem->>'affiliated_min_score')::int   as a_min,
+    (x.elem->>'affiliated_max_score')::int   as a_max
   from base b
-  cross join lateral jsonb_array_elements(b.cop_ranges) x
-  where (x->>'year')::int = in_year
+  cross join lateral (
+    select y as elem
+    from jsonb_array_elements(b.cop_ranges) y
+    order by (y->>'year')::int desc
+    limit 1
+  ) as x
 ),
 
 /* =========================
-   OPTIONS per school (emit a row for each qualifying track)
-   - IP (track = 'IP'): qualification by IP band (posting_group IS NULL).
-       IP doesn't have "affiliated" vs "open"; if only one set exists,
-       coalesce it for min/max checks.
-   - PG3_AFF (track = 'PG3_AFF'): only if child is affiliated AND score qualifies A-band.
-   - PG3_OPEN (track = 'PG3_OPEN'): if score qualifies NA-band.
+   OPTIONS per school
    ========================= */
 ip_opt as (
   select
     b.code,
     'IP'::text as track,
     null::int  as posting_group,
-    -- display cutoff: prefer affiliated max for IP if present, else non-aff
     coalesce(ce.a_max, ce.na_max) as cutoff_max
   from gendered b
   join cop_expanded ce on ce.code = b.code and ce.posting_group is null
-  -- qualify if score inside the available IP band (aff or non-aff fields)
   where user_score between coalesce(ce.a_min, ce.na_min) and coalesce(ce.a_max, ce.na_max)
 ),
 
-pg3_aff_opt as (
+pg_aff_opt as (
+  -- Affiliated options for PG3, PG2, PG1
   select
     b.code,
-    'PG3_AFF'::text as track,
-    3::int          as posting_group,
-    ce.a_max        as cutoff_max
+    ('PG' || ce.posting_group || '_AFF')::text as track,
+    ce.posting_group,
+    ce.a_max as cutoff_max
   from gendered b
-  join cop_expanded ce on ce.code = b.code and ce.posting_group = 3
+  join cop_expanded ce on ce.code = b.code and ce.posting_group in (1,2,3)
   join user_aff ua     on ua.code = b.code and ua.is_affiliated = true
   where ce.a_min is not null and ce.a_max is not null
     and user_score between ce.a_min and ce.a_max
 ),
 
--- PG3 (open) — but suppress when an affiliated PG3 row exists for this school
-pg3_open_opt as (
+pg_open_opt as (
+  -- Open options for PG3, PG2, PG1 (only if no matching AFF for that school+group)
   select
     b.code,
-    'PG3_OPEN'::text as track,
-    3::int           as posting_group,
-    ce.na_max        as cutoff_max
+    ('PG' || ce.posting_group || '_OPEN')::text as track,
+    ce.posting_group,
+    ce.na_max as cutoff_max
   from gendered b
-  join cop_expanded ce on ce.code = b.code and ce.posting_group = 3
+  join cop_expanded ce on ce.code = b.code and ce.posting_group in (1,2,3)
   where ce.na_min is not null and ce.na_max is not null
     and user_score between ce.na_min and ce.na_max
-    -- 👇 NEW: if the child is affiliated and PG3_AFF exists for this school,
-    -- do NOT emit PG3_OPEN (prevents a third duplicate row)
     and not exists (
       select 1
-      from pg3_aff_opt pa
+      from pg_aff_opt pa
       where pa.code = b.code
+        and pa.posting_group = ce.posting_group
     )
 ),
-
 
 options as (
   select * from ip_opt
   union all
-  select * from pg3_aff_opt
+  select * from pg_aff_opt
   union all
-  select * from pg3_open_opt
+  select * from pg_open_opt
 ),
 
 /* =========================
-   Row priority to enforce scenarios
-   - Scenario 2 (affiliated + IP qualifies): same school yields IP first, then PG3_AFF.
-   - Scenario 3 (affiliated, no IP): PG3_AFF first overall.
-   - Scenario 1 (non-aff): IP then PG3_OPEN back-to-back.
+   Row priority (same logic as before)
    ========================= */
 ranked as (
   select
@@ -153,20 +147,26 @@ ranked as (
         case
           when exists (select 1 from ip_opt i where i.code = o.code) then
             case
-              when o.track = 'IP'       then 0
-              when o.track = 'PG3_AFF'  then 1
+              when o.track = 'IP'            then 0
+              when o.track = 'PG3_AFF'       then 1
+              when o.track = 'PG2_AFF'       then 2
+              when o.track = 'PG1_AFF'       then 3
               else 9
             end
           else
             case
-              when o.track = 'PG3_AFF'  then 0
+              when o.track = 'PG3_AFF'       then 0
+              when o.track = 'PG2_AFF'       then 1
+              when o.track = 'PG1_AFF'       then 2
               else 9
             end
         end
       else
         case
-          when o.track = 'IP'        then 2
-          when o.track = 'PG3_OPEN'  then 3
+          when o.track = 'IP'            then 2
+          when o.track = 'PG3_OPEN'      then 3
+          when o.track = 'PG2_OPEN'      then 4
+          when o.track = 'PG1_OPEN'      then 5
           else 9
         end
     end as sort_row_priority
@@ -194,7 +194,7 @@ joined as (
 ),
 
 /* =========================
-   SPORTS (match list + normalized score over selected)
+   SPORTS
    ========================= */
 sports_join as (
   select
@@ -202,7 +202,7 @@ sports_join as (
     coalesce(
       array_agg(distinct ss.sport) filter (
         where array_length(sports_selected,1) is not null and ss.sport = any(sports_selected)
-      ), '{}'
+      ), '{}'::text[]
     ) as sports_matches,
     case
       when array_length(sports_selected,1) is null or array_length(sports_selected,1) = 0 then 0.0
@@ -222,7 +222,7 @@ cca_join as (
     coalesce(
       array_agg(distinct sc.cca) filter (
         where array_length(ccas_selected,1) is not null and sc.cca = any(ccas_selected)
-      ), '{}'
+      ), '{}'::text[]
     ) as ccas_matches,
     case
       when array_length(ccas_selected,1) is null or array_length(ccas_selected,1) = 0 then 0.0
@@ -242,7 +242,7 @@ culture_join as (
     coalesce(
       array_agg(distinct c.theme_key) filter (
         where array_length(culture_selected,1) is not null and c.theme_key = any(culture_selected)
-      ), '{}'
+      ), '{}'::text[]
     ) as culture_matches,
     case
       when array_length(culture_selected,1) is null or array_length(culture_selected,1) = 0 then 0.0
@@ -253,14 +253,27 @@ culture_join as (
   group by c.school_code::text
 ),
 
+/* =========================
+   CULTURE TAGS (top N by strength)
+   ========================= */
+culture_tags as (
+  select
+    c.school_code::text as code,
+    array_agg(c.theme_title order by c.final_strength desc) as culture_top_titles_all,
+    array_agg(c.final_strength order by c.final_strength desc) as culture_top_strengths_all
+  from public.school_culture_scores c
+  group by c.school_code::text
+),
+
 effective_limits AS (
   SELECT
     CASE
       WHEN coalesce(gender_pref,'Any') IN ('Boys','Girls')
-        THEN NULL::double precision     -- 👈 no cap when single-sex selected
+        THEN NULL::double precision
       ELSE max_distance_km
     END AS eff_max_km
 ),
+
 /* =========================
    Final rows with composite score
    ========================= */
@@ -274,9 +287,16 @@ final_rows as (
     j.posting_group,
     j.is_affiliated,
     j.cop_max_score,
+    j.sort_row_priority,
     sj.sports_matches,
     cj.ccas_matches,
     uj.culture_matches,
+    (case when ct.culture_top_titles_all is null
+          then '{}'::text[]
+          else ct.culture_top_titles_all[1:3] end) as culture_top_titles,
+    (case when ct.culture_top_strengths_all is null
+          then '{}'::double precision[]
+          else ct.culture_top_strengths_all[1:3] end) as culture_top_strengths,
     case
       when max_distance_km is null or max_distance_km <= 0 then 1.0
       else greatest(0.0, least(1.0, 1.0 - (coalesce(j.distance_km,0)::double precision / max_distance_km)))
@@ -288,6 +308,7 @@ final_rows as (
   left join sports_join sj  on sj.code = j.code
   left join cca_join    cj  on cj.code = j.code
   left join culture_join uj on uj.code = j.code
+  left join culture_tags ct on ct.code = j.code
 )
 
 select
@@ -296,12 +317,14 @@ select
   fr.address,
   fr.distance_km,
   fr.posting_group,
-  fr.track,                 -- 'IP' | 'PG3_AFF' | 'PG3_OPEN'
+  fr.track,
   fr.is_affiliated,
   fr.cop_max_score,
   fr.sports_matches,
   fr.ccas_matches,
   fr.culture_matches,
+  fr.culture_top_titles,
+  fr.culture_top_strengths,
   (coalesce(weight_dist,0)    * distance_score_norm) +
   (coalesce(weight_sport,0)   * sport_score_norm   ) +
   (coalesce(weight_cca,0)     * cca_score_norm     ) +
@@ -309,17 +332,14 @@ select
 FROM final_rows fr
 CROSS JOIN effective_limits el
 WHERE
-  (el.eff_max_km IS NULL)                  -- 👈 Boys/Girls: whole SG
+  (el.eff_max_km IS NULL)
   OR (fr.distance_km <= el.eff_max_km)
-  OR (fr.is_affiliated = true)             -- keep your affiliated override
+  OR (fr.is_affiliated = true)
 ORDER BY
   fr.is_affiliated DESC,
-  CASE
-    WHEN fr.is_affiliated THEN CASE WHEN fr.track='IP' THEN 0 WHEN fr.track='PG3_AFF' THEN 1 ELSE 9 END
-    ELSE                        CASE WHEN fr.track='IP' THEN 2 WHEN fr.track='PG3_OPEN' THEN 3 ELSE 9 END
-  END,
+  fr.sort_row_priority ASC,
   fr.cop_max_score ASC NULLS LAST,
-  (fr.posting_group IS NULL) DESC,
+  (fr.posting_group IS NULL) DESC,  -- keeps IP above O-level streams
   composite_score DESC,
   fr.distance_km ASC
 LIMIT GREATEST(1, coalesce(limit_count, 10));

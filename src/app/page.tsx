@@ -69,35 +69,39 @@ export default function HomePage() {
     <div className="min-h-screen bg-white text-gray-900">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Put your logo image at /public/logo.svg or /public/logo.png */}
-            <Image
-              src="/logo.svg"
-              alt="School Advisor"
-              width={160}
-              height={40}
-              priority
-              className="h-10 w-auto"
-            />
-            <nav className="ml-2 flex items-center gap-2">
-              <Link
-                href="/"
-                className="px-3 py-1.5 rounded text-sm font-medium text-gray-800 hover:bg-gray-100"
-              >
-                Home
-              </Link>
-              {/* Same base style as Home; on hover invert to white on brand color */}
-              <Link
-                href="/ranking"
-                className="px-3 py-1.5 rounded text-sm font-medium text-gray-800 hover:text-white hover:bg-pink-600 transition-colors"
-              >
-                School Assistant
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      {/* Logo wrapped in a Link */}
+      <Link href="/">
+        <Image
+          src="/logo.svg"
+          alt="School Advisor"
+          width={160}
+          height={40}
+          priority
+          className="h-10 w-auto"
+        />
+      </Link>
+      <nav className="ml-2 flex items-center gap-2">
+        <Link
+          href="/"
+          className="px-3 py-1.5 rounded text-sm font-medium text-gray-800 hover:bg-gray-100"
+        >
+          Home
+        </Link>
+        <Link
+          href="/ranking"
+          className="flex items-center gap-2 px-3 py-1.5 rounded text-sm font-medium text-gray-800 hover:text-white hover:bg-pink-600 transition-colors"
+        >
+          <span>School Assistant</span>
+          <span className="bg-pink-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+            New
+          </span>
+        </Link>
+      </nav>
+    </div>
+  </div>
+</header>
 
      {/* HERO — full bleed, anchored right, blended into dark left */}
 <section className="relative isolate min-h-[560px] md:min-h-[640px] lg:min-h-[720px]">
@@ -124,7 +128,7 @@ export default function HomePage() {
       <span className="block">PSLE scores</span>
     </h1>
       <p className="mt-4 sm:mt-6 text-white/90 text-lg">
-        Find the right secondary school 
+        Sports | CCAs | Culture insights - Try the School Assistant now!
       </p>
 
             {/* Search panel – left aligned under subtitle */}
@@ -185,28 +189,28 @@ export default function HomePage() {
         <section className="py-14">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-center">
-              Why Choose School Advisor SG
+              School Advisor SG Difference
             </h2>
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="rounded-2xl border border-gray-200 p-6 shadow-sm">
-                <div className="text-3xl">📍</div>
-                <h3 className="mt-3 font-semibold">Location Intelligence</h3>
-                <p className="mt-2 text-gray-600">
-                  Find schools closest to your home with accurate distance calculations and travel estimates.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <div className="text-3xl">⭐</div>
-                <h3 className="mt-3 font-semibold">Smart Matching</h3>
+                <h3 className="mt-3 font-semibold">Sports/CCAs Data</h3>
                 <p className="mt-2 text-gray-600">
-                  Advanced algorithms match your PSLE scores with school COP requirements and affiliation benefits.
+                  Find schools excelling in sports and CCAs, with data from National School Games and publicly reported sources.
                 </p>
               </div>
               <div className="rounded-2xl border border-gray-200 p-6 shadow-sm">
                 <div className="text-3xl">✨</div>
-                <h3 className="mt-3 font-semibold">AI Insights</h3>
+                <h3 className="mt-3 font-semibold">School Culture Insights</h3>
                 <p className="mt-2 text-gray-600">
-                  Get personalized explanations and school profiles powered by AI and comprehensive data analysis.
+                  Know what the schools stand for with AI-generated summaries of their culture and values.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-gray-200 p-6 shadow-sm">
+                <div className="text-3xl">📍</div>
+                <h3 className="mt-3 font-semibold">Affiliations/IPs</h3>
+                <p className="mt-2 text-gray-600">
+                  Get personalized recommendations considering your primary school affiliations and Integrated Program options.
                 </p>
               </div>
             </div>

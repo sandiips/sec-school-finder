@@ -6,69 +6,64 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type IncomingSchool = { code: string; name?: string };
 type ExplainRequest = {
-  inYear?: number;                  // optional; auto-detected if missing
-  schools: IncomingSchool[];
-  sports_selected?: string[];       // optional filter
-  debug?: boolean;                  // optional: include debug trail
+  schools?: IncomingSchool[];
+  sports_selected?: string[];
+  inYear?: number;
+  debug?: boolean;
+  // NEW (CCA): allow optional CCA filters from client
+  ccas_selected?: string[];
 };
 
-type StageRow = {
-  code: string;
-  sport: string;
-  gender: string | null;
-  division: string | null;
-  stage: string | null;
-  year: number;
-};
+function isNonEmptyArray(x: any): x is any[] {
+  return Array.isArray(x) && x.length > 0;
+}
+function isStr(x: any): x is string {
+  return typeof x === 'string' && x.trim().length > 0;
+}
+function isNum(x: any): x is number {
+  return typeof x === 'number' && Number.isFinite(x);
+}
+function isObj(x: any): x is Record<string, any> {
+  return x && typeof x === 'object' && !Array.isArray(x);
+}
+function has<T extends object>(obj: T, key: keyof any): boolean {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_SERVICE_ROLE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_SERVICE_ROLE ||
-  process.env.SUPABASE_KEY;
+function dpush(debugTrail: any[], key: string, payload?: any) {
+  debugTrail.push({ key, t: Date.now(), ...payload });
+}
 
-// When no sports are selected, we’ll show only the strongest few:
-const MAX_SPORTS_WHEN_UNFILTERED = 3;
-
-// Stage weights & normalization
-const STAGE_RANK: Record<string, number> = {
-  F: 4, FINAL: 4, FINALS: 4, 'GRAND FINAL': 4,
-  SF: 3, SEMI: 3, SEMIFINAL: 3, SEMIFINALS: 3,
-  '3RD_4TH': 2, '3RD/4TH': 2, 'THIRD/FOURTH': 2,
-  QF: 1, QTR: 1, QUARTERFINAL: 1, QUARTERFINALS: 1,
-};
+function normalizeSportName(s: string): string {
+  return s
+    .normalize('NFKC')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 function normalizeStage(s?: string | null): string {
-  if (!s) return '';
-  const u = s.trim().toUpperCase();
-  if (u === 'FINAL' || u === 'FINALS' || u === 'GRAND FINAL') return 'F';
-  if (u === 'SEMI' || u === 'SEMIFINAL' || u === 'SEMIFINALS') return 'SF';
-  if (u === '3RD/4TH' || u === 'THIRD/FOURTH' || u === '3RD_4TH') return '3RD_4TH';
-  if (u === 'QTR' || u === 'QUARTERFINAL' || u === 'QUARTERFINALS') return 'QF';
-  return u;
+  const x = (s || '').toUpperCase().replace(/\s+/g, '').trim();
+  if (!x) return '';
+  // Common variants
+  if (['F', 'FINAL', 'FINALS', 'GRANDFINAL', 'GF'].includes(x)) return 'FINAL';
+  if (['SF', 'SEMI', 'SEMIFINAL', 'SEMIFINALS'].includes(x)) return 'SEMI';
+  if (['3RD_4TH', '3RD/4TH', 'THIRD/FOURTH', '3RD4TH'].includes(x)) return '3RD_4TH';
+  if (['QF', 'QTR', 'QUARTERFINAL', 'QUARTERFINALS'].includes(x)) return 'QF';
+  return x;
 }
-function toCountWord(n: number): string {
-  if (n === 1) return 'once';
-  if (n === 2) return 'twice';
-  if (n === 3) return 'thrice';
-  return `${n} times`;
+
+function keyForBucket(sport: string, gender?: string | null, division?: string | null) {
+  const g = (gender || '').toUpperCase();
+  const d = (division || '').toUpperCase();
+  return [sport, g, d].join('|');
 }
-function rangeLabel(minY: number, maxY: number): string {
-  return minY === maxY ? `in ${minY}` : `over ${minY}\u2013${maxY}`;
-}
-function strengthLabel(score: number): 'very strong' | 'strong' | 'fair strength' | null {
-  if (score >= 7) return 'very strong';
-  if (score >= 4) return 'strong';
-  if (score >= 2) return 'fair strength';
-  return null;
-}
-function keyForBucket(sport: string, gender?: string | null, division?: string | null): string {
+
+function keyForBucket2(sport?: string | null, gender?: string | null, division?: string | null) {
   return [sport, gender || '', division || ''].join('||');
 }
 
@@ -90,39 +85,73 @@ async function fetchSchoolNamesByCode(
   return nameMap;
 }
 
-// —— Natural language helpers (explicitly include sport every time) ——
-function clauseForSport(
-  i: number,
+// —— Natural language helpers (explicitly include sport every time)
+
+function pluralize(n: number, singular: string, plural?: string): string {
+  if (n === 1) return `${n} ${singular}`;
+  return `${n} ${plural || (singular + 's')}`;
+}
+
+function stageToPhrase(stage: 'Finals' | 'Semifinals' | '3rd/4th'): string {
+  // Keep readable, consistent capitalization
+  return stage;
+}
+
+function strengthFromCounts(finals: number, semis: number, third: number, qf: number): 'very strong' | 'strong' | 'fair strength' {
+  // Heuristic: finals weigh most, then semis, then 3rd/4th, then QF
+  const score = finals * 4 + semis * 3 + third * 2 + qf * 1;
+  if (score >= 8) return 'very strong';
+  if (score >= 4) return 'strong';
+  return 'fair strength';
+}
+
+function summarizeBucketToClause(
+  idx: number,
   sport: string,
-  strength: 'very strong' | 'strong' | 'fair strength',
-  stageName: 'Finals' | 'Semifinals' | '3rd/4th',
-  freq: number,
+  finals: number,
+  semis: number,
+  third: number,
+  qf: number,
   gender?: string | null,
-  division?: string | null,
-  minY?: number,
-  maxY?: number
-): string {
-  const sportLabel = sport.toLowerCase(); // stylistic; feels natural in prose
-  const gPart = gender ? ` for ${gender}` : '';
-  const dPart = division ? ` in the ${division} Division` : '';
-  const yrs = (minY != null && maxY != null) ? ` ${rangeLabel(minY, maxY)}` : '';
-  const count = toCountWord(freq);
+  division?: string | null
+): { clause: string; sentences: string[] } {
+  const strength = strengthFromCounts(finals, semis, third, qf);
+  const pieces: string[] = [];
+  const freq = finals + semis + third + qf;
 
-  // Small variations to avoid robotic feel
-  const openers = [
-    `In ${sportLabel}, it is ${strength},`,
-    `In ${sportLabel}, the team is ${strength},`,
-    `In ${sportLabel}, it shows ${strength} form,`,
-  ];
-  const verbs = [
-    `having reached ${stageName}${gPart}${dPart} ${count}${yrs}.`,
-    `with ${stageName}${gPart}${dPart} ${count}${yrs}.`,
-    `making ${stageName}${gPart}${dPart} ${count}${yrs}.`,
-  ];
+  // Example outputs (always include sport name):
+  // - "In Badminton (Boys, B Division), the school has been very strong, reaching the Finals 2 times and Semifinals 1 time."
+  // - "In Netball (Girls), the school has strong results, with Semifinals 2 times."
+  const where =
+    gender && division
+      ? ` (${gender}, ${division} Division)`
+      : gender
+      ? ` (${gender})`
+      : division
+      ? ` (${division} Division)`
+      : '';
 
-  const opener = openers[i % openers.length];
-  const verb = verbs[i % verbs.length];
-  return `${opener} ${verb}`;
+  const counts: string[] = [];
+  if (finals > 0) counts.push(`${pluralize(finals, 'Final')} appearances`);
+  if (semis > 0) counts.push(`${pluralize(semis, 'Semifinal')} appearances`);
+  if (third > 0) counts.push(`${pluralize(third, '3rd/4th placing')}`);
+  if (qf > 0 && counts.length === 0) counts.push(`${pluralize(qf, 'Quarterfinal')} appearances`);
+
+  const core =
+    counts.length > 0
+      ? `${counts.join(' and ')}`
+      : `consistent participation`;
+
+  const lead =
+    strength === 'very strong'
+      ? `In ${sport}${where}, the school has been very strong, with ${core}.`
+      : strength === 'strong'
+      ? `In ${sport}${where}, the school shows strong results, with ${core}.`
+      : `In ${sport}${where}, the school has fair strength and ${core}.`;
+
+  pieces.push(lead);
+
+  return { clause: lead, sentences: pieces };
 }
 
 function singleSportSentence(
@@ -133,34 +162,315 @@ function singleSportSentence(
   freq: number,
   gender?: string | null,
   division?: string | null,
-  minY?: number,
-  maxY?: number
+  minB?: number,
+  maxB?: number
 ): string {
-  const sportLabel = sport.toLowerCase();
-  const gPart = gender ? ` for ${gender}` : '';
-  const dPart = division ? ` in the ${division} Division` : '';
-  const yrs = (minY != null && maxY != null) ? ` ${rangeLabel(minY, maxY)}` : '';
-  const count = toCountWord(freq);
-  // IMPORTANT: keep sport explicitly named
-  return `${schoolName} is ${strength} in ${sportLabel}, ` +
-         `having reached ${stageName}${gPart}${dPart} ${count}${yrs}.`;
+  // "(School) is very strong in (Sport) (Girls, B Division), with frequent Finals appearances (2–3 times) over 2022–2024."
+  const where =
+    gender && division
+      ? ` (${gender}, ${division} Division)`
+      : gender
+      ? ` (${gender})`
+      : division
+      ? ` (${division} Division)`
+      : '';
+
+  const band =
+    minB && maxB && minB !== maxB
+      ? `${minB}–${maxB} times`
+      : minB
+      ? `${minB} times`
+      : `${freq} times`;
+
+  let opening: string;
+  if (strength === 'very strong') {
+    opening = `${schoolName} is very strong in ${sport}${where}, with frequent ${stageName} appearances (${band}) over recent years.`;
+  } else if (strength === 'strong') {
+    opening = `${schoolName} is strong in ${sport}${where}, with regular ${stageName} appearances (${band}) over recent years.`;
+  } else {
+    opening = `${schoolName} shows fair strength in ${sport}${where}, with ${stageName} appearances (${band}) over recent years.`;
+  }
+  return opening;
 }
+
+function clauseForSport(
+  idx: number,
+  sport: string,
+  strength: 'very strong' | 'strong' | 'fair strength',
+  stageName: 'Finals' | 'Semifinals' | '3rd/4th',
+  freq: number,
+  gender?: string | null,
+  division?: string | null,
+  minB?: number,
+  maxB?: number
+): string {
+  const where =
+    gender && division
+      ? ` (${gender}, ${division} Division)`
+      : gender
+      ? ` (${gender})`
+      : division
+      ? ` (${division} Division)`
+      : '';
+
+  const band =
+    minB && maxB && minB !== maxB
+      ? `${minB}–${maxB} times`
+      : minB
+      ? `${minB} times`
+      : `${freq} times`;
+
+  if (strength === 'very strong') {
+    return `In ${sport}${where}, the school has been very strong, with ${stageName} appearances ${band}.`;
+  } else if (strength === 'strong') {
+    return `In ${sport}${where}, the school shows strong results, with ${stageName} appearances ${band}.`;
+  } else {
+    return `In ${sport}${where}, the school has fair strength, with ${stageName} appearances ${band}.`;
+  }
+}
+
+// Limit the number of sports shown when no sports are selected by the user
+const MAX_SPORTS_WHEN_UNFILTERED = 3;
+
+// NEW (CCA): helpers to generate a CCA explanation matched by school_code, prefer details then fallback to scores.
+const CCA_YEARS_WINDOW_FALLBACK = 3; // use the same 3-year window as sports
+
+function ccaTitleCase(s: string) {
+  return String(s || '')
+    .replace(/[-_]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+function placementToRankValue(p?: string | number | null): number {
+  if (p == null) return 999;
+  const s = String(p).toLowerCase().trim();
+  const asNum = Number(s.replace(/[^0-9]/g, ''));
+  if (!Number.isNaN(asNum) && asNum > 0) return asNum;
+  if (/(champion|gold|winn?er)/.test(s)) return 1;
+  if (/(runner[-\s]?up|silver)/.test(s)) return 2;
+  if (/(third|bronze)/.test(s)) return 3;
+  if (/(fourth|semi[-\s]?final)/.test(s)) return 4;
+  if (/(quarter[-\s]?final|finalist)/.test(s)) return 6;
+  return 999;
+}
+
+async function buildCcaExplanationFromDetailsByCode(
+  supabase: SupabaseClient<any>,
+  schoolCode: string,
+  years: number[],
+  ccasSelected: string[] | undefined,
+  schoolName: string // ← NEW
+): Promise<string> {
+  // Try both possible key columns: school_code and code
+  const tryFetch = async () => {
+    let { data, error } = await supabase
+      .from('school_cca_details')
+      .select('*')
+      .in('year', years as any)
+      .eq('school_code', schoolCode)
+      .order('year', { ascending: false });
+    if (error?.code === '42703' || !data?.length) {
+      ({ data, error } = await supabase
+        .from('school_cca_details')
+        .select('*')
+        .in('year', years as any)
+        .eq('code', schoolCode)
+        .order('year', { ascending: false }));
+    }
+    return { data, error };
+  };
+
+  const { data, error } = await tryFetch();
+  if (error) { console.error('CCA details fetch error:', error); return ''; }
+  if (!data || !data.length) return '';
+
+  const pick = (row: any, names: string[]) =>
+    names.map(n => row?.[n]).find(v => v != null && String(v).trim() !== '') ?? '';
+
+  const ccaKeys = ['cca', 'activity', 'cca_name', 'name'];
+  const placementKeys = ['placement', 'position', 'result', 'medal'];
+  const compKeys = ['event_name', 'competition', 'event', 'meet'];
+  const toNum = (v: any) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+  const toYear = (v: any) => Number(v ?? 0) || 0;
+
+  // Optional filter by selected CCAs
+  const rows = (Array.isArray(ccasSelected) && ccasSelected.length)
+    ? data.filter((r: any) => {
+        const cca = String(pick(r, ccaKeys)).toLowerCase();
+        return ccasSelected.some(sel => sel.toLowerCase() === cca);
+      })
+    : data;
+
+  if (!rows.length) return '';
+
+  // Group by CCA
+  type Item = { year: number; label: string; labelNum?: number; comp?: string; score?: number };
+  const byCca = new Map<string, Item[]>();
+
+  for (const r of rows as any[]) {
+    const cca = String(pick(r, ccaKeys)).trim();
+    if (!cca) continue;
+    const year = toYear(r.year);
+    const label = String(pick(r, placementKeys));
+    const labelNum = (() => {
+      const m = label.match(/\d+/);
+      return m ? Number(m[0]) : undefined;
+    })();
+    const comp = String(pick(r, compKeys));
+    const score = toNum(r.score);
+
+    const arr = byCca.get(cca) || [];
+    arr.push({ year, label, labelNum, comp, score });
+    byCca.set(cca, arr);
+  }
+
+  if (!byCca.size) return '';
+
+  // Rank CCAs by count then by best numeric placement, then by total score
+  const rankedCcas = Array.from(byCca.entries()).sort((a, b) => {
+    const [ccaA, arrA] = a; const [ccaB, arrB] = b;
+    if (arrB.length !== arrA.length) return arrB.length - arrA.length; // more placements first
+    const bestA = Math.min(...arrA.map(x => x.labelNum ?? 999));
+    const bestB = Math.min(...arrB.map(x => x.labelNum ?? 999));
+    if (bestA !== bestB) return bestA - bestB; // lower placement number is better
+    const scoreA = arrA.reduce((t, x) => t + (x.score ?? 0), 0);
+    const scoreB = arrB.reduce((t, x) => t + (x.score ?? 0), 0);
+    return scoreB - scoreA;
+  });
+
+  // Build up to 3 concise sentences
+  const sentences: string[] = [];
+  for (const [ccaRaw, arr] of rankedCcas.slice(0, 3)) {
+    const CCA = ccaTitleCase(ccaRaw);
+    // Single record → "<School> is good at <CCA> and has achieved placement <#> in <year>."
+    if (arr.length === 1) {
+      const { year, label, labelNum } = arr[0];
+      const placeTxt = (labelNum != null) ? `${labelNum}` : (label || 'a top');
+      sentences.push(
+        `${schoolName} is good at ${CCA} and has achieved placement ${placeTxt} in ${year}.`
+      );
+      continue;
+    }
+
+    // Multiple records → "<School> is strong in <CCA> and has achieved <#> placements in <CCA> competitions in <years>."
+    const count = arr.length;
+    const yearsList = Array.from(new Set(arr.map(x => x.year))).sort((a, b) => b - a).join(', ');
+    sentences.push(
+      `${schoolName} is strong in ${CCA} and has achieved ${count} placements in ${CCA} competitions in ${yearsList}.`
+    );
+  }
+
+  return sentences.join(' ');
+}
+
+async function buildCcaExplanationFromScoresByCode(
+  supabase: SupabaseClient<any>,
+  schoolCode: string,
+  years: number[],
+  ccasSelected: string[] | undefined,
+  schoolName: string // ← NEW
+): Promise<string> {
+  // Try both key columns: school_code and code
+  const tryFetch = async () => {
+    let { data, error } = await supabase
+      .from('school_cca_scores')
+      .select('*')
+      .in('year', years as any)
+      .eq('school_code', schoolCode)
+      .order('score', { ascending: false });
+    if (error?.code === '42703' || !data?.length) {
+      ({ data, error } = await supabase
+        .from('school_cca_scores')
+        .select('*')
+        .in('year', years as any)
+        .eq('code', schoolCode)
+        .order('score', { ascending: false }));
+    }
+    return { data, error };
+  };
+
+  const { data, error } = await tryFetch();
+  if (error) { console.error('CCA scores fetch error:', error); return ''; }
+  if (!data || !data.length) return '';
+
+  const pick = (row: any, names: string[]) =>
+    names.map(n => row?.[n]).find(v => v != null && String(v).trim() !== '') ?? '';
+
+  const rows = (Array.isArray(ccasSelected) && ccasSelected.length)
+    ? data.filter((r: any) => {
+        const cca = String(pick(r, ['cca','activity','cca_name','name'])).toLowerCase();
+        return ccasSelected.some(sel => sel.toLowerCase() === cca);
+      })
+    : data;
+
+  if (!rows.length) return '';
+
+  type Agg = { cca: string; years: Set<number>; total: number; bestYear: number; bestScore: number };
+  const byCca = new Map<string, Agg>();
+
+  for (const r of rows as any[]) {
+    const cca = String(pick(r, ['cca','activity','cca_name','name'])).trim();
+    if (!cca) continue;
+    const year = Number(r.year ?? 0) || 0;
+    const score = Number(r.score ?? 0) || 0;
+
+    const curr = byCca.get(cca) || { cca, years: new Set<number>(), total: 0, bestYear: year, bestScore: score };
+    curr.years.add(year);
+    curr.total += score;
+    if (score > curr.bestScore) { curr.bestScore = score; curr.bestYear = year; }
+    byCca.set(cca, curr);
+  }
+
+  const ranked = Array.from(byCca.values()).sort((a, b) => b.total - a.total).slice(0, 3);
+  const sentences = ranked.map(a => {
+    const yearsList = Array.from(a.years).sort((x, y) => y - x).join(', ');
+    return `${schoolName} is strong in ${ccaTitleCase(a.cca)} based on good results in ${yearsList}.`;
+  });
+
+  return sentences.join(' ');
+}
+
+async function buildCcaExplanationForSchoolByCode(
+  supabase: SupabaseClient<any>,
+  schoolCode: string,
+  years: number[],
+  ccasSelected: string[] | undefined,
+  schoolName: string // ← NEW
+): Promise<string> {
+  const fromDetails = await buildCcaExplanationFromDetailsByCode(
+    supabase, schoolCode, years, ccasSelected, schoolName
+  );
+  if (fromDetails) return fromDetails;
+  return buildCcaExplanationFromScoresByCode(
+    supabase, schoolCode, years, ccasSelected, schoolName
+  );
+}
+
 
 export async function POST(req: Request) {
   const debugTrail: any[] = [];
-  const url = new URL(req.url);
-  const dbgParam = url.searchParams.get('debug');
-  let dbgEnabled = dbgParam === '1';
-
-  const d = (msg: string, extra?: any) => {
-    if (dbgEnabled) {
-      debugTrail.push({ msg, ...(extra ? { extra } : {}) });
-      if (extra) console.log('[explain]', msg, extra);
-      else console.log('[explain]', msg);
-    }
-  };
+  const d = (k: string, payload?: any) => dpush(debugTrail, k, payload);
 
   try {
+    const dbgEnabled = (() => {
+      try {
+        const u = new URL(req.url);
+        return u.searchParams.get('debug') === '1';
+      } catch {
+        return false;
+      }
+    })();
+
+    const SUPABASE_URL =
+      process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      process.env.SUPABASE_URL;
+
+    const SUPABASE_SERVICE_ROLE_KEY =
+      process.env.SUPABASE_SERVICE_ROLE ||
+      process.env.SUPABASE_KEY;
+
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       d('env.missing', { hasUrl: !!SUPABASE_URL, hasKey: !!SUPABASE_SERVICE_ROLE_KEY });
       return NextResponse.json({ error: 'Supabase env missing', debug: debugTrail }, { status: 500 });
@@ -170,14 +480,15 @@ export async function POST(req: Request) {
     let body: ExplainRequest;
     try {
       body = (await req.json()) as ExplainRequest;
-    } catch (e: any) {
-      d('parse.error', { message: e?.message });
-      return NextResponse.json({ error: 'Invalid JSON body', debug: debugTrail }, { status: 400 });
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
-    if (!dbgEnabled && body?.debug) dbgEnabled = true;
 
-    const schools = Array.isArray(body?.schools) ? body.schools : [];
+    const schools: IncomingSchool[] = Array.isArray(body?.schools) ? body.schools : [];
     const sportsSelected = Array.isArray(body?.sports_selected) ? body.sports_selected : [];
+    // NEW (CCA): parse optional CCA filters
+    const ccasSelected = Array.isArray(body?.ccas_selected) ? body.ccas_selected : [];
+
     const codes = [...new Set(schools.map(s => String(s.code)))];
 
     if (codes.length === 0) {
@@ -212,15 +523,30 @@ export async function POST(req: Request) {
       .lte('year', maxY);
 
     if (error) {
-      d('supabase.error', { code: error.code, message: error.message, details: error.details });
-      return NextResponse.json({ error: 'Failed to fetch sport results', debug: debugTrail }, { status: 500 });
+      d('fetch.error', { error });
+      return NextResponse.json({ error: 'Failed to fetch sports results.', debug: debugTrail }, { status: 400 });
     }
+    const raw: any[] = Array.isArray(rows) ? rows : [];
+    d('fetch.ok', { count: raw.length });
 
-    // Optional sport filter
-    const sportsSet = new Set(sportsSelected.map(s => s.trim().toLowerCase()));
-    const filtered: StageRow[] = (rows as StageRow[]).filter(r => {
-      if (!sportsSelected.length) return true;
-      return sportsSet.has((r.sport || '').toLowerCase());
+    // Filter by sports if user selected any
+    const sportsSelectedNorm = sportsSelected
+      .map(s => normalizeSportName(String(s)))
+      .filter(Boolean);
+    const selectedSet = new Set(sportsSelectedNorm.map(s => s.toLowerCase()));
+
+    const filtered = raw.filter(row => {
+      const sport = normalizeSportName(String(row.sport || ''));
+      if (!sport) return false;
+      if (!selectedSet.size) return true;
+      return selectedSet.has(sport.toLowerCase());
+    });
+
+    // Build a set of distinct sports present (debug only)
+    const distinctSports = new Set<string>();
+    filtered.forEach(r => {
+      const sport = normalizeSportName(String(r.sport || ''));
+      if (sport) distinctSports.add((sport || '').toLowerCase());
     });
 
     // School names
@@ -228,6 +554,22 @@ export async function POST(req: Request) {
     for (const s of schools) if (s.name) providedNameMap.set(String(s.code), s.name);
     const needNames = codes.filter(c => !providedNameMap.has(c));
     const dbNameMap = await fetchSchoolNamesByCode(supabase, needNames);
+    // Culture summaries (120-word)
+    let cultureByCode: Record<string, string> = {};
+    try {
+      const { data: cultureRows, error: cultureErr } = await supabase
+        .from('school_culture_summaries')
+        .select('school_code, short_summary')
+        .in('school_code', codes);
+      if (dbgEnabled) d('culture.fetch', { count: (cultureRows || []).length, err: cultureErr?.message });
+      if (!cultureErr && cultureRows) {
+        for (const r of cultureRows as any[]) {
+          if (r?.school_code) cultureByCode[String(r.school_code)] = r.short_summary || '';
+        }
+      }
+    } catch (e) {
+      if (dbgEnabled) d('culture.fetch.error', { e: String(e) });
+    }
 
     // Aggregate per school, per (sport,gender,division)
     type BucketCounts = {
@@ -241,6 +583,15 @@ export async function POST(req: Request) {
       qf: number;
       score: number;
     };
+
+    // Stage weights & normalization
+    const STAGE_RANK: Record<string, number> = {
+      F: 4, FINAL: 4, FINALS: 4, 'GRAND FINAL': 4,
+      SF: 3, SEMI: 3, SEMIFINAL: 3, SEMIFINALS: 3,
+      '3RD_4TH': 2, '3RD/4TH': 2, 'THIRD/FOURTH': 2,
+      QF: 1, QTR: 1, QUARTERFINAL: 1, QUARTERFINALS: 1,
+    };
+
     const bySchool: Record<string, Record<string, BucketCounts>> = {};
 
     for (const row of filtered) {
@@ -267,117 +618,162 @@ export async function POST(req: Request) {
       else if (rank === 2) b.third += 1;
       else if (rank === 1) b.qf += 1;
 
-      b.score = b.finals * 4 + b.semis * 3 + b.third * 2 + b.qf * 1;
+      b.score += rank;
     }
 
-    // Build natural sentences
-    const per_school = codes.map(code => {
-      const displayName =
-        providedNameMap.get(code) ||
-        dbNameMap.get(code) ||
-        `School ${code}`;
-
-      const buckets = Object.values(bySchool[code] || {});
-      // group by sport and pick the best (gender/division) bucket per sport
-      const bySport = new Map<string, BucketCounts[]>();
-      for (const b of buckets) {
-        bySport.set(b.sport, [...(bySport.get(b.sport) || []), b]);
+    // Aggregate by sport (gender/division buckets -> pick strongest per sport)
+    const perBucketSummaries: Record<string, Record<string, { finals: number; semis: number; third: number; qf: number; years: number; score: number; minB: number; maxB: number }>> = {};
+    for (const [code, buckets] of Object.entries(bySchool)) {
+      perBucketSummaries[code] ||= {};
+      for (const [bucketKey, b] of Object.entries(buckets)) {
+        const yearsCount = (b.years?.size || 0);
+        const minB = Math.min(b.finals + b.semis + b.third + b.qf, b.finals + b.semis + b.third + b.qf); // same value (we'll update later)
+        const maxB = b.finals + b.semis + b.third + b.qf; // same value
+        perBucketSummaries[code][bucketKey] = {
+          finals: b.finals, semis: b.semis, third: b.third, qf: b.qf,
+          years: yearsCount, score: b.score, minB, maxB
+        };
       }
+    // Stage weights & normalization
+    // (moved above, now redundant)
 
-      type SportSummary = {
-        sport: string;
-        strength: 'very strong' | 'strong' | 'fair strength';
-        stageName: 'Finals' | 'Semifinals' | '3rd/4th';
-        freq: number;
-        gender?: string | null;
-        division?: string | null;
-        minB: number;
-        maxB: number;
-        score: number;
-      };
-      let summaries: SportSummary[] = [];
+    function normalizeStage(s?: string | null): string {
+      const x = (s || '').toUpperCase().replace(/\s+/g, '').trim();
+      if (!x) return '';
+      if (['F', 'FINAL', 'FINALS', 'GRANDFINAL', 'GF'].includes(x)) return 'FINAL';
+      if (['SF', 'SEMI', 'SEMIFINAL', 'SEMIFINALS'].includes(x)) return 'SEMI';
+      if (['3RD_4TH', '3RD/4TH', 'THIRD/FOURTH', '3RD4TH'].includes(x)) return '3RD_4TH';
+      if (['QF', 'QTR', 'QUARTERFINAL', 'QUARTERFINALS'].includes(x)) return 'QF';
+      return x;
+    }
 
-      for (const [sport, list] of bySport.entries()) {
-        // choose the strongest bucket for this sport
-        const sorted = list.slice().sort((a, b) => {
-          if (b.score !== a.score) return b.score - a.score;
-          const aBest = a.finals > 0 ? 4 : a.semis > 0 ? 3 : a.third > 0 ? 2 : a.qf > 0 ? 1 : 0;
-          const bBest = b.finals > 0 ? 4 : b.semis > 0 ? 3 : b.third > 0 ? 2 : b.qf > 0 ? 1 : 0;
-          if (bBest !== aBest) return bBest - aBest;
-          return (b.years.size - a.years.size);
-        });
-        const best = sorted[0];
-        if (!best) continue;
+    function keyForBucket(sport: string, gender?: string | null, division?: string | null) {
+      const g = (gender || '').toUpperCase();
+      const d = (division || '').toUpperCase();
+      return [sport, g, d].join('|');
+    }
 
-        // Must have Finals/Semis/3rd counts to talk about it
-        const hasFinals = best.finals > 0;
-        const hasSemis  = best.semis  > 0;
-        const hasThird  = best.third  > 0;
-        if (!hasFinals && !hasSemis && !hasThird) continue;
+    function keyForBucket2(sport?: string | null, gender?: string | null, division?: string | null) {
+      return [sport, gender || '', division || ''].join('||');
+    }
+    }
 
-        const strength = strengthLabel(best.score);
-        if (!strength) continue;
+    function keyForBucket2(sport?: string | null, gender?: string | null, division?: string | null) {
+      return [sport, gender || '', division || ''].join('||');
+    }
 
-        // headline stage + frequency
-        let stageName: 'Finals' | 'Semifinals' | '3rd/4th';
-        let freq: number;
-        if (hasFinals) { stageName = 'Finals'; freq = best.finals; }
-        else if (hasSemis) { stageName = 'Semifinals'; freq = best.semis; }
-        else { stageName = '3rd/4th'; freq = best.third; }
+    // NEW (CCA): build per-school results WITH CCA explanation (by code)
+    const per_school = await Promise.all(
+      codes.map(async (code) => {
+        const displayName =
+          providedNameMap.get(code) ||
+          dbNameMap.get(code) ||
+          `School ${code}`;
 
-        const yearsArr = [...best.years];
-        summaries.push({
-          sport, strength, stageName, freq,
-          gender: best.gender, division: best.division,
-          minB: Math.min(...yearsArr), maxB: Math.max(...yearsArr),
-          score: best.score,
-        });
-      }
+        const buckets = Object.values(bySchool[code] || {});
+        // group by sport and pick the best (gender/division) bucket per sport
+        const bySport = new Map<string, BucketCounts[]>();
+        for (const b of buckets) {
+          bySport.set(b.sport, [...(bySport.get(b.sport) || []), b]);
+        }
 
-      // If nothing strong, return empty strings
-      if (!summaries.length) return { code, one_liner: '', explanation: '' };
+        type SportSummary = {
+          sport: string;
+          strength: 'very strong' | 'strong' | 'fair strength';
+          stageName: 'Finals' | 'Semifinals' | '3rd/4th';
+          freq: number;
+          gender?: string | null;
+          division?: string | null;
+          minB: number;
+          maxB: number;
+          score: number;
+        };
+        let summaries: SportSummary[] = [];
 
-      // Sort sports by strength score so strongest are mentioned first
-      summaries.sort((a, b) => b.score - a.score);
+        for (const [sport, list] of bySport.entries()) {
+          // choose the strongest bucket for this sport
+          const sorted = list.slice().sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            const aBest = a.finals > 0 ? 4 : a.semis > 0 ? 3 : a.third > 0 ? 2 : a.qf > 0 ? 1 : 0;
+            const bBest = b.finals > 0 ? 4 : b.semis > 0 ? 3 : b.third > 0 ? 2 : b.qf > 0 ? 1 : 0;
+            return bBest - aBest;
+          });
+          const best = sorted[0];
+          const strength = strengthFromCounts(best.finals, best.semis, best.third, best.qf);
+          const stageName: 'Finals' | 'Semifinals' | '3rd/4th' =
+            best.finals > 0 ? 'Finals' : best.semis > 0 ? 'Semifinals' : '3rd/4th';
+          const freq = best.finals + best.semis + best.third + best.qf;
 
-      // NEW: If user did NOT select sports, limit to top N only
-      if (!sportsSelected.length && summaries.length > MAX_SPORTS_WHEN_UNFILTERED) {
-        summaries = summaries.slice(0, MAX_SPORTS_WHEN_UNFILTERED);
-      }
+          const minB = Math.min(freq, freq);
+          const maxB = Math.max(freq, freq);
+          summaries.push({
+            sport,
+            strength,
+            stageName,
+            freq,
+            gender: best.gender,
+            division: best.division,
+            minB,
+            maxB,
+            score: best.score,
+          });
+        }
 
-      // Build clauses (sport mentioned every time)
-      const clauses = summaries.map((s, i) =>
-        clauseForSport(i, s.sport, s.strength, s.stageName, s.freq, s.gender, s.division, s.minB, s.maxB)
-      );
-
-      // Compose explanation
-      let explanation: string;
-      if (clauses.length === 1) {
-        // Single sport: explicit sport naming
-        const s = summaries[0];
-        explanation = singleSportSentence(
-          displayName, s.sport, s.strength, s.stageName, s.freq, s.gender, s.division, s.minB, s.maxB
+        // If nothing strong, return empty strings (plus CCA explanation if any)
+        // NEW (CCA): compute CCA explainer first, so even if no sports we still return it
+        const cca_explanation = await buildCcaExplanationForSchoolByCode(
+          supabase,
+          code,
+          years,
+          ccasSelected,
+          displayName            // ← NEW
         );
-      } else {
-        // Multi-sport: one lead + varied clauses (all name the sport)
-        const lead = `${displayName} shows strong performance across multiple sports.`;
-        // Add a light connector before the final clause for readability
-        const decorated = clauses.map((c, idx) =>
-          (idx === clauses.length - 1 && clauses.length > 1)
-            ? c.replace(/^In /, 'Additionally, in ')
-            : c
+
+        if (!summaries.length) {
+          return { code, one_liner: '', explanation: '', culture_short: (cultureByCode[code] || ''), cca_explanation };
+        }
+
+        // Sort sports by strength score so strongest are mentioned first
+        summaries.sort((a, b) => b.score - a.score);
+
+        // NEW: If user did NOT select sports, limit to top N only
+        if (!sportsSelected.length && summaries.length > MAX_SPORTS_WHEN_UNFILTERED) {
+          summaries = summaries.slice(0, MAX_SPORTS_WHEN_UNFILTERED);
+        }
+
+        // Build clauses (sport mentioned every time)
+        const clauses = summaries.map((s, i) =>
+          clauseForSport(i, s.sport, s.strength, s.stageName, s.freq, s.gender, s.division, s.minB, s.maxB)
         );
-        explanation = `${lead} ${decorated.join(' ')}`;
-      }
 
-      // one_liner mirrors the strongest sport sentence (explicit sport naming)
-      const s0 = summaries[0];
-      const one_liner = singleSportSentence(
-        displayName, s0.sport, s0.strength, s0.stageName, s0.freq, s0.gender, s0.division, s0.minB, s0.maxB
-      );
+        // Single-sport vs multi-sport one-liner
+        const s0 = summaries[0];
+        const one_liner = singleSportSentence(
+          displayName, s0.sport, s0.strength, s0.stageName, s0.freq, s0.gender, s0.division, s0.minB, s0.maxB
+        );
 
-      return { code, one_liner, explanation };
-    });
+        // Compose explanation
+        let explanation: string;
+        if (clauses.length === 1) {
+          // Single sport: explicit sport naming
+          const s = summaries[0];
+          explanation = singleSportSentence(
+            displayName, s.sport, s.strength, s.stageName, s.freq, s.gender, s.division, s.minB, s.maxB
+          );
+        } else {
+          // Multi-sport: one lead + varied clauses (all name the sport)
+          const lead = `${displayName} shows strong performance across multiple sports.`;
+          // Add a light connector before the final clause for readability
+          const decorated = clauses.map((c, idx) =>
+            idx === clauses.length - 1 && clauses.length > 1 ? `and ${c}` : c
+          );
+          explanation = [lead, ...decorated].join(' ');
+        }
+
+        // NEW (CCA): return original fields + cca_explanation
+        return { code, one_liner, explanation, culture_short: (cultureByCode[code] || ''), cca_explanation };
+      })
+    );
 
     const payload: any = { overall: '', per_school };
     if (dbgEnabled) payload.debug = debugTrail;
