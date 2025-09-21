@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { sendGAEvent } from '@next/third-parties/google';
+
 
 // Extracted primary school names from the SQL file
 const PRIMARY_SCHOOLS = [
