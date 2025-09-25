@@ -193,7 +193,7 @@ const PRIMARY_SCHOOLS = [
 
 // ---- Fallbacks; will be replaced by /api/options if available ----
 const FALLBACK_SPORTS = [
-  'Badminton','Basketball','Football','Hockey','Swimming','Netball','SepakTakraw','Softball','Table Tennis','Tennis','Volleyball','Water Polo','Rugby','Squash'
+  'Badminton','Basketball','Bowling','Canoeing','Cricket','Floorball','Football','Golf','Hockey','Swimming','Netball','SepakTakraw','Softball','Table Tennis','Tennis','Volleyball','Water Polo','Rugby','Squash'
 ];
 const FALLBACK_CCAS = [
   'Astronomy','Chemistry Olympiad','Math Olympiad','Robotics','National STEM'];
