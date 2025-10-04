@@ -1,0 +1,139 @@
+create table public.secondary_with_affiliations (
+  code integer null,
+  name text null,
+  address text null,
+  lat double precision null,
+  lng double precision null,
+  cop_ranges jsonb null,
+  affiliated_primaries jsonb null,
+  affiliated_primary_slugs text[] null,
+  gender text null,
+  constraint secondary_with_affiliations_code_key unique (code)
+) TABLESPACE pg_default;
+
+
+create table public.school_sport_results (
+  id bigserial not null,
+  code text not null,
+  sport text not null,
+  year integer not null,
+  level text null,
+  zone text null,
+  division text null,
+  gender text null,
+  stage text not null,
+  placement integer null,
+  medal text null,
+  score numeric null,
+  meet_id text null,
+  source_pdf text null,
+  page integer null,
+  extraction_confidence numeric null,
+  notes text null,
+  created_at timestamp with time zone null default now(),
+  constraint school_sport_results_pkey primary key (id),
+  constraint ssr_unique_key unique (
+    code,
+    sport,
+    year,
+    division,
+    gender,
+    stage,
+    meet_id
+  )
+) TABLESPACE pg_default;
+
+create index IF not exists idx_ssr_code_year on public.school_sport_results using btree (code, year desc) TABLESPACE pg_default;
+
+create index IF not exists idx_ssr_code_sport on public.school_sport_results using btree (code, sport) TABLESPACE pg_default;
+
+create table public.school_sports_scores (
+  school_slug text not null,
+  sport text not null,
+  score numeric not null,
+  year integer not null default 2024,
+  code integer not null,
+  score_breakdown jsonb null,
+  constraint school_sports_scores_pkey primary key (code, sport, year),
+  constraint uq_scores_code_sport_year unique (code, sport, year)
+) TABLESPACE pg_default;
+
+create index IF not exists idx_scores_sport_year on public.school_sports_scores using btree (sport, year) TABLESPACE pg_default;
+
+create index IF not exists idx_sports_scores_slug on public.school_sports_scores using btree (school_slug) TABLESPACE pg_default;
+
+create unique INDEX IF not exists uq_sports_school_year on public.school_sports_scores using btree (code, sport, year) TABLESPACE pg_default;
+
+
+create table public.school_cca_details (
+  id uuid not null default gen_random_uuid (),
+  code integer not null,
+  school_slug text not null,
+  cca text not null,
+  year integer not null,
+  event_name text not null,
+  level text null,
+  category text null,
+  gender text null,
+  division text null,
+  award text null,
+  position integer null,
+  score numeric null,
+  source_url text null,
+  notes text null,
+  event_key text not null,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now(),
+  constraint school_cca_details_pkey primary key (id)
+) TABLESPACE pg_default;
+
+create unique INDEX IF not exists school_cca_details_uniq on public.school_cca_details using btree (code, cca, year, event_key) TABLESPACE pg_default;
+
+create index IF not exists school_cca_details_code_year_idx on public.school_cca_details using btree (code, year) TABLESPACE pg_default;
+
+create index IF not exists school_cca_details_cca_idx on public.school_cca_details using btree (cca) TABLESPACE pg_default;
+
+
+create table public.school_cca_scores (
+  school_slug text not null,
+  cca text not null,
+  score double precision not null,
+  year integer not null default 2024,
+  code text not null,
+  constraint school_cca_scores_pkey primary key (code, cca, year),
+  constraint school_cca_scores_code_cca_year_uniq unique (code, cca, year)
+) TABLESPACE pg_default;
+
+create table public.school_culture_summaries (
+  school_code text not null,
+  school_slug text null,
+  school_name text null,
+  short_summary text not null,
+  long_summary text not null,
+  sources jsonb not null default '[]'::jsonb,
+  source_hash text not null,
+  updated_at timestamp with time zone not null default now(),
+  constraint school_culture_summaries_pkey primary key (school_code)
+) TABLESPACE pg_default;
+
+create index IF not exists idx_culture_summaries_slug on public.school_culture_summaries using btree (school_slug) TABLESPACE pg_default;
+
+
+[
+  {
+    "function_name": "rank_schools",
+    "args": "user_lat double precision, user_lng double precision, user_score integer, user_primary text, ccas_selected text[], culture_selected text[], gender_pref text, in_year integer, limit_count integer, max_distance_km numeric, sports_selected text[], weight_cca numeric, weight_culture numeric, weight_dist numeric, weight_sport numeric",
+    "return_type": "TABLE(code text, name text, address text, distance_km double precision, posting_group integer, cop_max_score integer, is_affiliated boolean, ip_cutoff_max integer, aff_pg integer, aff_pg_cutoff_max integer, open_pg integer, open_pg_cutoff_max integer, sports_matches text[], ccas_matches text[], culture_matches text[], composite_score double precision)",
+    "schema": "public"
+  }
+]
+
+[
+  {
+    "function_name": "rank_schools1",
+    "args": "ccas_selected text[], culture_selected text[], gender_pref text, limit_count integer, max_distance_km double precision, primary_slug text, sports_selected text[], user_lat double precision, user_lng double precision, user_score integer, weight_cca double precision, weight_culture double precision, weight_dist double precision, weight_sport double precision",
+    "return_type": "TABLE(code text, name text, address text, distance_km double precision, posting_group integer, track text, is_affiliated boolean, cop_max_score integer, sports_matches text[], ccas_matches text[], culture_matches text[], culture_top_titles text[], culture_top_strengths double precision[], composite_score double precision)",
+    "schema": "public"
+  }
+]
+

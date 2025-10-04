@@ -68,20 +68,30 @@ export default function FeedbackWidget() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Give feedback"
-        className="fixed z-40 bottom-5 right-5 rounded-full px-4 py-3 bg-pink-600 text-white shadow-lg hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-400"
+        className="fixed z-[9999] bottom-4 right-4 rounded-full w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-3 bg-accent-blue text-white shadow-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm sm:text-base flex items-center justify-center"
+        style={{
+          position: 'fixed',
+          bottom: '16px',
+          right: '16px',
+          zIndex: 99999,
+          display: 'flex',
+          visibility: 'visible',
+          opacity: 1
+        }}
       >
-        Feedback
+        <span className="hidden sm:inline">Feedback</span>
+        <span className="sm:hidden text-lg">💬</span>
       </button>
 
       {/* Toast */}
       {ok === true && (
-        <div className="fixed bottom-20 right-5 z-40 bg-green-600 text-white px-4 py-2 rounded shadow">
-          Thanks! We’ve received your feedback.
+        <div className="fixed bottom-20 right-4 sm:right-5 z-50 bg-green-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base max-w-xs sm:max-w-none">
+          Thanks! We've received your feedback.
         </div>
       )}
       {ok === false && (
-        <div className="fixed bottom-20 right-5 z-40 bg-red-600 text-white px-4 py-2 rounded shadow">
-          Sorry—couldn’t send feedback. Try again.
+        <div className="fixed bottom-20 right-4 sm:right-5 z-50 bg-red-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base max-w-xs sm:max-w-none">
+          Sorry—couldn't send feedback. Try again.
         </div>
       )}
 
@@ -120,7 +130,7 @@ export default function FeedbackWidget() {
                     type="button"
                     onClick={() => setRating(n)}
                     className={`h-9 w-9 rounded-full border flex items-center justify-center ${
-                      rating === n ? 'bg-pink-600 text-white border-pink-600' : 'bg-white text-gray-700 border-gray-300'
+                      rating === n ? 'bg-accent-blue text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'
                     }`}
                     aria-pressed={rating===n}
                   >
@@ -182,7 +192,7 @@ export default function FeedbackWidget() {
               <button
                 disabled={submitting || !message.trim()}
                 onClick={submit}
-                className="px-4 py-2 rounded bg-pink-600 text-white hover:bg-pink-700 disabled:opacity-50"
+                className="px-4 py-2 rounded bg-accent-blue text-white hover:bg-blue-700 disabled:opacity-50"
               >
                 {submitting ? 'Sending…' : 'Send feedback'}
               </button>

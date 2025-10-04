@@ -60,9 +60,22 @@ export async function POST(req: Request) {
     const weight_cca = toWeight(cca_importance);
     const weight_culture = toWeight(culture_importance);
 
-    const max_distance_km = 10;
+    const max_distance_km = 30;
 
     const primary_slug = slugify(primary_school);
+
+    // Debug logging: Log all input parameters
+    console.log('🔍 RANKING DEBUG - Input Parameters:');
+    console.log('  PSLE Score:', psle_score);
+    console.log('  Gender Preference:', gender || 'Any');
+    console.log('  Location:', { lat, lng, postal_code });
+    console.log('  Primary School:', primary_school, '→', primary_slug);
+    console.log('  Distance Limit:', max_distance_km, 'km');
+    console.log('  Weights:', { weight_dist, weight_sport, weight_cca, weight_culture });
+    console.log('  Sports Selected:', sports_selected);
+    console.log('  CCAs Selected:', ccas_selected);
+    console.log('  Culture Selected:', culture_selected);
+    console.log('  Result Limit:', limit);
 
     const { data, error } = await supabase.rpc('rank_schools1', {
       user_score: psle_score,
@@ -80,6 +93,12 @@ export async function POST(req: Request) {
       limit_count: limit,
       primary_slug           // <— NEW
     });
+
+    // Debug logging: Log Supabase response
+    console.log('🔍 RANKING DEBUG - Supabase Response:');
+    console.log('  Error:', error);
+    console.log('  Data Count:', data ? data.length : 0);
+    console.log('  Raw Data:', data);
 
     if (error) {
       console.error('rank_schools1 error', error);
@@ -113,12 +132,55 @@ export async function POST(req: Request) {
       };
     });
 
+    // Generate refinement suggestions when no schools found
+    let suggestions = null;
+    if (schools.length === 0) {
+      suggestions = [];
+
+      // Suggest reducing selections if multiple selected
+      if (sports_selected.length > 2) {
+        suggestions.push(`Try selecting fewer sports (currently ${sports_selected.length} selected)`);
+      }
+      if (ccas_selected.length > 2) {
+        suggestions.push(`Try selecting fewer CCAs (currently ${ccas_selected.length} selected)`);
+      }
+      if (culture_selected.length > 3) {
+        suggestions.push(`Try selecting fewer culture traits (currently ${culture_selected.length} selected)`);
+      }
+
+      // Suggest increasing distance if it's restrictive
+      if (max_distance_km < 20) {
+        suggestions.push(`Consider increasing distance limit (currently ${max_distance_km}km)`);
+      }
+
+      // Suggest trying "Any" gender if Boys/Girls selected
+      if (gender && gender !== 'Any') {
+        suggestions.push(`Try "Any Gender" to include co-ed schools (currently filtering for ${gender} schools only)`);
+      }
+
+      // If no specific suggestions, provide general advice
+      if (suggestions.length === 0) {
+        suggestions.push('Try reducing your criteria or increasing the distance limit');
+      }
+    }
+
     const summary =
       schools.length === 0
         ? 'No suitable matches found within your distance and preference settings.'
         : `These schools were ranked using your distance preference, selected sports/CCAs and culture traits, and COP cut-offs (affiliation-aware).`;
 
-    return NextResponse.json({ summary, schools });
+    // Debug logging: Log final results
+    console.log('🔍 RANKING DEBUG - Final Results:');
+    console.log('  Schools Found:', schools.length);
+    console.log('  Summary:', summary);
+    if (schools.length > 0) {
+      console.log('  School Names:', schools.map((s: any) => s.name));
+      console.log('  First School Details:', schools[0]);
+    } else {
+      console.log('  ❌ NO SCHOOLS RETURNED - Check criteria above');
+    }
+
+    return NextResponse.json({ summary, schools, suggestions });
   } catch (err: any) {
     console.error(err);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });

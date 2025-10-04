@@ -1,0 +1,245 @@
+school_slug,cca,score,year,code
+raffles-girls-school,Astronomy,165,2024,3008
+raffles-institution,Astronomy,180,2024,3009
+dunman-high-school,Astronomy,165,2024,3101
+orchid-park-secondary-school,Astronomy,80,2024,3605
+anglo-chinese-school-independent,Astronomy,265,2024,7001
+st-josephs-institution,Astronomy,165,2024,7020
+hwa-chong-institution,Astronomy,350,2024,806
+gan-eng-seng-school,Astronomy,80,2025,3006
+raffles-institution,Astronomy,265,2025,3009
+temasek-secondary-school,Astronomy,80,2025,3030
+dunman-high-school,Astronomy,80,2025,3101
+river-valley-high-school,Astronomy,80,2025,3103
+bukit-merah-secondary-school,Astronomy,80,2025,3203
+acs-independent,Astronomy,100,2025,7001
+st-josephs-institution,Astronomy,265,2025,7020
+hwa-chong-institution-college-section,Astronomy,350,2025,806
+raffles-girls-school,Chemistry Olympiad,85,2024,3008
+raffles-institution,Chemistry Olympiad,100,2024,3009
+victoria-school,Chemistry Olympiad,75,2024,3014
+anglo-chinese-school-independent,Chemistry Olympiad,80,2024,7001
+catholic-high-school,Chemistry Olympiad,85,2024,7102
+nanyang-girls-high-school,Chemistry Olympiad,80,2024,7114
+hwa-chong-institution,Chemistry Olympiad,85,2024,806
+anderson-secondary-school,Math Olympiad,65,2023,3001
+cedar-girls-secondary-school,Math Olympiad,80,2023,3004
+crescent-girls-school,Math Olympiad,65,2023,3005
+gan-eng-seng-school,Math Olympiad,65,2023,3006
+raffles-girls-school-secondary,Math Olympiad,165,2023,3008
+raffles-institution,Math Olympiad,200,2023,3009
+commonwealth-secondary-school,Math Olympiad,65,2023,3012
+victoria-school,Math Olympiad,150,2023,3014
+clementi-town-secondary-school,Math Olympiad,65,2023,3029
+temasek-secondary-school,Math Olympiad,65,2023,3030
+bowen-secondary-school,Math Olympiad,65,2023,3043
+yishun-town-secondary-school,Math Olympiad,65,2023,3045
+nan-hua-high-school,Math Olympiad,85,2023,3047
+xinmin-secondary-school,Math Olympiad,65,2023,3050
+kranji-secondary-school,Math Olympiad,65,2023,3065
+dunman-high-school,Math Olympiad,165,2023,3101
+river-valley-high-school,Math Olympiad,160,2023,3103
+bukit-panjang-government-high-school,Math Olympiad,65,2023,3204
+swiss-cottage-secondary-school,Math Olympiad,65,2023,3304
+tanjong-katong-secondary-school,Math Olympiad,65,2023,3512
+fuhua-secondary-school,Math Olympiad,65,2023,3614
+evergreen-secondary-school,Math Olympiad,65,2023,3623
+anglo-chinese-school-independent,Math Olympiad,165,2023,7001
+chij-secondary-toa-payoh,Math Olympiad,65,2023,7004
+singapore-chinese-girls-school,Math Olympiad,65,2023,7014
+st-andrews-secondary-school,Math Olympiad,65,2023,7015
+st-josephs-institution,Math Olympiad,145,2023,7020
+methodist-girls-school,Math Olympiad,80,2023,7030
+anglican-high-school,Math Olympiad,65,2023,7101
+catholic-high-school,Math Olympiad,85,2023,7102
+maris-stella-high-school,Math Olympiad,85,2023,7111
+nan-chiau-high-school,Math Olympiad,80,2023,7112
+nanyang-girls-high-school,Math Olympiad,85,2023,7114
+chij-st-nicholas-girls-school,Math Olympiad,80,2023,7118
+fairfield-methodist-school-secondary,Math Olympiad,65,2023,7309
+ngee-ann-secondary-school,Math Olympiad,65,2023,7310
+hwa-chong-institution,Math Olympiad,200,2023,806
+anderson-secondary-school,Math Olympiad,65,2024,3001
+cedar-girls-secondary-school,Math Olympiad,80,2024,3004
+crescent-girls-school,Math Olympiad,65,2024,3005
+gan-eng-seng-school,Math Olympiad,65,2024,3006
+raffles-girls-school-secondary,Math Olympiad,165,2024,3008
+raffles-institution,Math Olympiad,200,2024,3009
+commonwealth-secondary-school,Math Olympiad,65,2024,3012
+victoria-school,Math Olympiad,150,2024,3014
+clementi-town-secondary-school,Math Olympiad,65,2024,3029
+temasek-secondary-school,Math Olympiad,65,2024,3030
+bukit-batok-secondary-school,Math Olympiad,65,2024,3044
+yishun-town-secondary-school,Math Olympiad,65,2024,3045
+nan-hua-high-school,Math Olympiad,80,2024,3047
+xinmin-secondary-school,Math Olympiad,65,2024,3050
+dunman-high-school,Math Olympiad,165,2024,3101
+river-valley-high-school,Math Olympiad,165,2024,3103
+bukit-panjang-government-high-school,Math Olympiad,65,2024,3204
+swiss-cottage-secondar-school,Math Olympiad,65,2024,3304
+yusof-ishak-secondary-school,Math Olympiad,65,2024,3307
+tanjong-katong-secondary-school,Math Olympiad,65,2024,3512
+anglo-chinese-school-independent,Math Olympiad,180,2024,7001
+chij-secondary-school-toa-payoh,Math Olympiad,65,2024,7004
+singapore-chinese-girls-school,Math Olympiad,65,2024,7014
+st-josephs-institution,Math Olympiad,145,2024,7020
+methodist-girls-school-secondary,Math Olympiad,80,2024,7030
+anglican-high-school,Math Olympiad,65,2024,7101
+catholic-high-school-secondary,Math Olympiad,85,2024,7102
+chung-cheng-high-school-main,Math Olympiad,65,2024,7104
+maris-stella-high-school,Math Olympiad,85,2024,7111
+nan-chiau-high-school,Math Olympiad,80,2024,7112
+nanyang-girls-high-school,Math Olympiad,85,2024,7114
+chij-st-nicholas-girls-school,Math Olympiad,80,2024,7118
+presbyterian-high-school,Math Olympiad,65,2024,7308
+ngee-ann-secondary-school,Math Olympiad,65,2024,7310
+hwa-chong-institution,Math Olympiad,200,2024,806
+raffles-girls-school,National STEM,80,2022,3008
+raffles-institution,National STEM,100,2022,3009
+chij-st-nicholas-girls-school,National STEM,65,2022,7118
+raffles-girls-school,National STEM,80,2023,3008
+raffles-institution,National STEM,230,2023,3009
+acs-independent,National STEM,100,2023,7001
+hwa-chong-institution,National STEM,165,2023,806
+river-valley-high-school,National STEM,80,2024,3103
+acs-independent,National STEM,85,2024,7001
+raffles-institution,National STEM,275,2025,3009
+hwa-chong-institution,National STEM,65,2025,806
+anderson-secondary-school,Robotics,185,2023,3001
+cedar-girls-secondary-school,Robotics,80,2023,3004
+woodlands-secondary-school,Robotics,80,2023,3041
+nan-hua-high-school,Robotics,165,2023,3047
+dunman-high-school,Robotics,345,2023,3101
+river-valley-high-school,Robotics,260,2023,3103
+zhonghua-secondary-school,Robotics,85,2023,3240
+woodlands-ring-secondary-school,Robotics,85,2023,3604
+fuhua-secondary-school,Robotics,85,2023,3614
+kuo-chuan-presbyterian-secondary,Robotics,85,2023,7028
+fairfield-methodist-secondary-school,Robotics,100,2023,7309
+ngee-ann-secondary-school,Robotics,185,2023,7310
+hwa-chong-institution,Robotics,280,2023,806
+anderson-secondary-school,Robotics_old,82.8,2024,3001
+bartley-secondary-school,Robotics_old,97.73,2024,3002
+crescent-girls-school,Robotics_old,89.24,2024,3005
+gan-eng-seng-school,Robotics_old,76.55,2024,3006
+queensway-secondary-school,Robotics_old,72.18,2024,3007
+raffles-girls-school-secondary,Robotics_old,93.64,2024,3008
+raffles-institution-secondary,Robotics_old,99.67,2024,3009
+serangoon-secondary-school,Robotics_old,84.27,2024,3010
+commonwealth-secondary-school,Robotics_old,89.3,2024,3012
+tanjong-katong-girls-school,Robotics_old,67.29,2024,3013
+victoria-school,Robotics_old,84.03,2024,3014
+yuhua-secondary-school,Robotics_old,70.36,2024,3019
+yishun-secondary-school,Robotics_old,68.73,2024,3020
+bendemeer-secondary-school,Robotics_old,68.64,2024,3021
+ang-mo-kio-secondary-school,Robotics_old,97.7,2024,3026
+bedok-south-secondary-school,Robotics_old,70.31,2024,3027
+clementi-town-secondary-school,Robotics_old,99.22,2024,3029
+temasek-secondary-school,Robotics_old,72.72,2024,3030
+mayflower-secondary-school,Robotics_old,64.44,2024,3031
+tampines-secondary-school,Robotics_old,68.85,2024,3037
+bukit-view-secondary-school,Robotics_old,82.79,2024,3040
+woodlands-secondary-school,Robotics_old,67.76,2024,3041
+bowen-secondary-school,Robotics_old,79.78,2024,3043
+bukit-batok-secondary-school,Robotics_old,64.68,2024,3044
+yishun-town-secondary-school,Robotics_old,75.1,2024,3045
+hougang-secondary-school,Robotics_old,60.28,2024,3046
+nan-hua-high-school,Robotics_old,64.67,2024,3047
+xinmin-secondary-school,Robotics_old,84.05,2024,3050
+greenridge-secondary-school,Robotics_old,98.38,2024,3051
+springfield-secondary-school,Robotics_old,95.64,2024,3053
+chua-chu-kang-secondary-school,Robotics_old,95.55,2024,3055
+damai-secondary-school,Robotics_old,86.71,2024,3056
+northland-secondary-school,Robotics_old,96.43,2024,3058
+peirce-secondary-school,Robotics_old,72.39,2024,3061
+jurongville-secondary-school,Robotics_old,66.34,2024,3063
+kranji-secondary-school,Robotics_old,86.58,2024,3065
+juying-secondary-school,Robotics_old,81.23,2024,3066
+west-spring-secondary-school,Robotics_old,94.05,2024,3067
+jurong-west-secondary-school,Robotics_old,90.59,2024,3068
+punggol-secondary-school,Robotics_old,60.2,2024,3070
+admiralty-secondary-school,Robotics_old,76.13,2024,3072
+pei-hwa-secondary-school,Robotics_old,79.29,2024,3073
+greendale-secondary-school,Robotics_old,90.5,2024,3074
+edgefield-secondary-school,Robotics_old,89.72,2024,3075
+loyang-view-secondary-school,Robotics_old,60.18,2024,3077
+dunman-high-school-secondary,Robotics_old,74.63,2024,3101
+river-valley-high-school-secondary,Robotics_old,74.95,2024,3103
+ahmad-ibrahim-secondary-school,Robotics_old,97.19,2024,3201
+broadrick-secondary-school,Robotics_old,94.2,2024,3202
+bukit-merah-secondary-school,Robotics_old,77.84,2024,3203
+bukit-panjang-govt-high-school,Robotics_old,93.86,2024,3204
+dunman-secondary-school,Robotics_old,79.18,2024,3207
+jurong-secondary-school,Robotics_old,78.64,2024,3211
+naval-base-secondary-school,Robotics_old,84.58,2024,3214
+outram-secondary-school,Robotics_old,74.51,2024,3215
+yio-chu-kang-secondary-school,Robotics_old,72.98,2024,3222
+yuan-ching-secondary-school,Robotics_old,75.53,2024,3223
+boon-lay-secondary-school,Robotics_old,82.04,2024,3224
+hua-yi-secondary-school,Robotics_old,92.8,2024,3226
+deyi-secondary-school,Robotics_old,63.17,2024,3228
+peicai-secondary-school,Robotics_old,62.94,2024,3232
+pasir-ris-secondary-school,Robotics_old,61.28,2024,3235
+guangyang-secondary-school,Robotics_old,97.13,2024,3238
+riverside-secondary-school,Robotics_old,78.7,2024,3239
+zhonghua-secondary-school,Robotics_old,66.3,2024,3240
+yusof-ishak-secondary-school,Robotics_old,65.43,2024,3307
+dunearn-secondary-school,Robotics_old,83.87,2024,3503
+new-town-secondary-school,Robotics_old,97.56,2024,3507
+queenstown-secondary-school,Robotics_old,81.26,2024,3508
+serangoon-garden-secondary-school,Robotics_old,60.84,2024,3509
+tanjong-katong-secondary-school,Robotics_old,67.89,2024,3512
+woodlands-ring-secondary-school,Robotics_old,67.51,2024,3604
+orchid-park-secondary-school,Robotics_old,96.54,2024,3605
+sembawang-secondary-school,Robotics_old,93.91,2024,3606
+seng-kang-secondary-school,Robotics_old,92.78,2024,3607
+junyuan-secondary-school,Robotics_old,97.01,2024,3608
+east-spring-secondary-school,Robotics_old,97.4,2024,3609
+unity-secondary-school,Robotics_old,73.27,2024,3611
+northbrooks-secondary-school,Robotics_old,96.28,2024,3612
+pasir-ris-crest-secondary-school,Robotics_old,99.7,2024,3613
+fuhua-secondary-school,Robotics_old,79.82,2024,3614
+marsiling-secondary-school,Robotics_old,94.11,2024,3615
+woodgrove-secondary-school,Robotics_old,79.15,2024,3616
+zhenghua-secondary-school,Robotics_old,92.94,2024,3617
+regent-secondary-school,Robotics_old,70.25,2024,3618
+kent-ridge-secondary-school,Robotics_old,71.63,2024,3619
+westwood-secondary-school,Robotics_old,67,2024,3620
+canberra-secondary-school,Robotics_old,97.66,2024,3621
+compassvale-secondary-school,Robotics_old,63.76,2024,3622
+evergreen-secondary-school,Robotics_old,94.53,2024,3623
+anglochinese-school-independent-secondary,Robotics_old,64.15,2024,7001
+assumption-english-school,Robotics_old,79.97,2024,7002
+chij-secondary-toa-payoh,Robotics_old,77.6,2024,7004
+geylang-methodist-school-secondary,Robotics_old,95.28,2024,7005
+chij-katong-convent,Robotics_old,64.73,2024,7008
+national-junior-college-secondary,Robotics_old,63.57,2024,701
+singapore-chinese-girls-school,Robotics_old,64.65,2024,7014
+st-andrews-secondary-school,Robotics_old,68.12,2024,7015
+st-anthonys-canossian-secondary-school,Robotics_old,90.14,2024,7016
+st-gabriels-secondary-school,Robotics_old,88.09,2024,7017
+chij-st-josephs-convent,Robotics_old,71.94,2024,7019
+temasek-junior-college-secondary,Robotics_old,66.71,2024,702
+st-josephs-institution-secondary,Robotics_old,71.78,2024,7020
+st-margarets-school-secondary,Robotics_old,70.47,2024,7021
+st-patricks-school,Robotics_old,85.24,2024,7022
+christ-church-secondary-school,Robotics_old,89.76,2024,7025
+paya-lebar-methodist-girls-school-secondary,Robotics_old,74.59,2024,7026
+kuo-chuan-presbyterian-secondary-school,Robotics_old,76.66,2024,7028
+st-hildas-secondary-school,Robotics_old,99.48,2024,7029
+methodist-girls-school-secondary,Robotics_old,90.98,2024,7030
+hai-sing-catholic-school,Robotics_old,70.09,2024,7031
+anglochinese-school-barker-road,Robotics_old,69.01,2024,7032
+anglican-high-school,Robotics_old,60.13,2024,7101
+catholic-high-school-secondary,Robotics_old,92.45,2024,7102
+chung-cheng-high-school-main,Robotics_old,89.21,2024,7104
+chung-cheng-high-school-yishun,Robotics_old,80.88,2024,7105
+holy-innocents-high-school,Robotics_old,89.84,2024,7108
+maris-stella-high-school-secondary,Robotics_old,93.17,2024,7111
+nan-chiau-high-school,Robotics_old,95.94,2024,7112
+nanyang-girls-high-school,Robotics_old,89.45,2024,7114
+chij-st-nicholas-girls-school-secondary,Robotics_old,86.65,2024,7118
+manjusri-secondary-school,Robotics_old,84.85,2024,7307
+presbyterian-high-school,Robotics_old,67,2024,7308
+fairfield-methodist-school-secondary,Robotics_old,76.03,2024,7309
+ngee-ann-secondary-school,Robotics_old,97.59,2024,7310

@@ -4,6 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
+import { sendGAEvent } from '@next/third-parties/google';
+import SchoolCard from "@/components/search/SchoolCard";
+import ComparisonCounter from "@/components/search/ComparisonCounter";
+import Navigation from "@/components/ui/Navigation";
+import { isValidSingaporePostalCode, getPostalCodeErrorMessage, isValidPSLEScore, getPSLEScoreErrorMessage } from '@/lib/validation';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -22,10 +27,41 @@ export default function HomePage() {
   const [psle, setPsle] = useState("");
   const [primary, setPrimary] = useState("");
   const [postal, setPostal] = useState("");
+  const [isPostalValid, setIsPostalValid] = useState(false);
+  const [postalError, setPostalError] = useState('');
+  const [isPsleValid, setIsPsleValid] = useState(false);
+  const [psleError, setPsleError] = useState('');
+
+  // Validate postal code
+  useEffect(() => {
+    const valid = isValidSingaporePostalCode(postal);
+    setIsPostalValid(valid);
+
+    if (postal.length > 0 && !valid) {
+      setPostalError(getPostalCodeErrorMessage(postal));
+    } else {
+      setPostalError('');
+    }
+  }, [postal]);
+
+  // Validate PSLE score
+  useEffect(() => {
+    const valid = isValidPSLEScore(psle);
+    setIsPsleValid(valid);
+
+    if (psle.length > 0 && !valid) {
+      setPsleError(getPSLEScoreErrorMessage(psle));
+    } else {
+      setPsleError('');
+    }
+  }, [psle]);
 
   // results (we hide the feature cards once results exist)
   const [results, setResults] = useState<any[]>([]);
   const resultsRef = useRef<HTMLDivElement>(null);
+
+  // comparison state
+  const [selectedSchools, setSelectedSchools] = useState<any[]>([]);
 
   // primaries for the select
   const { data: primaries } = useSWR("/api/primaries", fetcher);
@@ -36,12 +72,79 @@ export default function HomePage() {
     }
   }, [results]);
 
+  // Comparison functions
+  const toggleSchoolComparison = (school: any) => {
+    const isSelected = selectedSchools.some(s => s.code === school.code);
+
+    if (isSelected) {
+      // Track school removal from comparison
+      sendGAEvent('event', 'school_removed_from_comparison', {
+        school_code: school.code,
+        school_name: school.name,
+        removal_source: 'home_page_search',
+        schools_remaining: selectedSchools.length - 1
+      });
+      setSelectedSchools(selectedSchools.filter(s => s.code !== school.code));
+    } else if (selectedSchools.length < 4) {
+      // Track school addition to comparison
+      sendGAEvent('event', 'school_added_to_comparison', {
+        school_code: school.code,
+        school_name: school.name,
+        addition_source: 'home_page_search',
+        schools_selected: selectedSchools.length + 1,
+        psle_score: parseInt(psle),
+        distance_km: school.distance_km || school.distance,
+        school_type: school.type
+      });
+      setSelectedSchools([...selectedSchools, school]);
+    } else {
+      // Track comparison limit reached
+      sendGAEvent('event', 'comparison_limit_reached', {
+        attempted_school_code: school.code,
+        attempted_school_name: school.name,
+        current_selection_count: selectedSchools.length,
+        max_limit: 4
+      });
+      alert('Maximum 4 schools can be compared at once.');
+    }
+  };
+
+  const clearAllComparisons = () => {
+    // Track clearing all comparisons
+    sendGAEvent('event', 'comparison_cleared_all', {
+      schools_cleared: selectedSchools.length,
+      clear_source: 'home_page_search'
+    });
+    setSelectedSchools([]);
+  };
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    // Prevent submission if postal code or PSLE score is invalid
+    if (!isPostalValid || !postal.trim() || !isPsleValid || !psle.trim()) {
+      return;
+    }
+
+    // Track search attempt
+    sendGAEvent('event', 'distance_search_attempt', {
+      psle_score: parseInt(psle),
+      primary_school: primary,
+      postal_code: postal,
+      search_type: 'distance_based'
+    });
+
     // 1) geocode postal
     const geo = await fetch(`/api/geocode?pincode=${postal}`).then((r) => r.json());
-    if (geo.error) return alert(geo.error);
+    if (geo.error) {
+      // Track geocoding error
+      sendGAEvent('event', 'search_error', {
+        error_type: 'geocoding_failed',
+        postal_code: postal,
+        error_message: geo.error
+      });
+      return alert(geo.error);
+    }
 
     // 2) call the SEARCH endpoint (distance‑first), NOT the ranking one
     const params = new URLSearchParams({
@@ -50,11 +153,20 @@ export default function HomePage() {
       lat: String(geo.lat),
       lng: String(geo.lng),
       inYear: '2024',
-      maxDistanceKm: "10",
+      maxDistanceKm: "50",
     });
 
     const data = await fetch(`/api/search?${params}`).then((r) => r.json());
-    if (data?.error) return alert(data.error);
+    if (data?.error) {
+      // Track search API error
+      sendGAEvent('event', 'search_error', {
+        error_type: 'api_search_failed',
+        psle_score: parseInt(psle),
+        primary_school: primary,
+        error_message: data.error
+      });
+      return alert(data.error);
+    }
 
     // 3) make sure it's strictly sorted by distance (safety net)
     const normDist = (s: any) =>
@@ -62,46 +174,22 @@ export default function HomePage() {
 
     const byDistance = [...(data ?? [])].sort((a, b) => normDist(a) - normDist(b));
 
+    // Track successful search
+    sendGAEvent('event', 'distance_search_success', {
+      psle_score: parseInt(psle),
+      primary_school: primary,
+      postal_code: postal,
+      results_count: byDistance.length,
+      search_type: 'distance_based',
+      max_distance_km: 50
+    });
+
     setResults(byDistance);
   }
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-    <div className="flex items-center gap-3">
-      {/* Logo wrapped in a Link */}
-      <Link href="/">
-        <Image
-          src="/logo.svg"
-          alt="School Advisor"
-          width={160}
-          height={40}
-          priority
-          className="h-10 w-auto"
-        />
-      </Link>
-      <nav className="ml-2 flex items-center gap-2">
-        <Link
-          href="/"
-          className="px-3 py-1.5 rounded text-sm font-medium text-gray-800 hover:bg-gray-100"
-        >
-          Home
-        </Link>
-        <Link
-          href="/ranking"
-          className="flex items-center gap-2 px-3 py-1.5 rounded text-sm font-medium text-gray-800 hover:text-white hover:bg-pink-600 transition-colors"
-        >
-          <span>School Assistant</span>
-          <span className="bg-pink-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-            New
-          </span>
-        </Link>
-      </nav>
-    </div>
-  </div>
-</header>
+      <Navigation />
 
      {/* HERO — full bleed, anchored right, blended into dark left */}
 <section className="relative isolate min-h-[560px] md:min-h-[640px] lg:min-h-[720px]">
@@ -128,7 +216,9 @@ export default function HomePage() {
       <span className="block">PSLE scores</span>
     </h1>
       <p className="mt-4 sm:mt-6 text-white/90 text-lg">
-        Sports | CCAs | Culture insights - Try the School Assistant now!
+       <b> Sports | CCAs | Culture insights </b> </p>
+      <p className="mt-4 sm:mt-6 text-white/90 text-lg">
+        Explore School Assistant & Compare Tools now!
       </p>
 
             {/* Search panel – left aligned under subtitle */}
@@ -138,19 +228,28 @@ export default function HomePage() {
       className="mt-6 sm:mt-8 w-full bg-white/95 backdrop-blur rounded-2xl shadow-xl p-4 sm:p-5 lg:p-6"
     >
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <input
-          type="number"
-          placeholder="PSLE score"
-          value={psle}
-          onChange={(e) => setPsle(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
-          required
-        />
+        <div className="relative">
+          <input
+            type="number"
+            placeholder="PSLE score (4-30)"
+            value={psle}
+            onChange={(e) => setPsle(e.target.value)}
+            className={`input-modern ${
+              psle.length > 0 && !isPsleValid ? 'border-red-500' : 'border-gray-300'
+            }`}
+            min="4"
+            max="30"
+            required
+          />
+          {psleError && (
+            <p className="text-sm text-red-500 mt-1">{psleError}</p>
+          )}
+        </div>
 
         <select
           value={primary}
           onChange={(e) => setPrimary(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="input-modern"
           required
         >
           <option value="">Primary school</option>
@@ -161,20 +260,32 @@ export default function HomePage() {
           ))}
         </select>
 
-        <input
-          type="text"
-          placeholder="Postal code"
-          value={postal}
-          onChange={(e) => setPostal(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
-          required
-        />
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Postal code"
+            value={postal}
+            onChange={(e) => setPostal(e.target.value)}
+            className={`input-modern ${
+              postal.length > 0 && !isPostalValid ? 'border-red-500' : 'border-gray-300'
+            }`}
+            required
+          />
+          {postalError && (
+            <p className="text-sm text-red-500 mt-1">{postalError}</p>
+          )}
+        </div>
       </div>
 
       <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
         <button
           type="submit"
-          className="inline-flex justify-center items-center rounded-lg bg-pink-600 px-5 py-3 text-white font-semibold hover:bg-pink-700"
+          disabled={!isPostalValid || !postal.trim() || !isPsleValid || !psle.trim()}
+          className={`${
+            isPostalValid && postal.trim() && isPsleValid && psle.trim()
+              ? 'btn-primary'
+              : 'btn-primary opacity-50 cursor-not-allowed'
+          }`}
         >
           Find Schools Now
         </button>
@@ -189,27 +300,28 @@ export default function HomePage() {
         <section className="py-14">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-center">
-              School Advisor SG Difference
+              <span className="text-primary">School Advisor SG</span>{' '}
+              <span className="text-secondary">Difference</span>
             </h2>
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="rounded-2xl border border-gray-200 p-6 shadow-sm">
-                <div className="text-3xl">⭐</div>
-                <h3 className="mt-3 font-semibold">Sports/CCAs Data</h3>
-                <p className="mt-2 text-gray-600">
+              <div className="bg-white border-2 border-gray-900 rounded-xl p-6 hover:shadow-lg transition-all duration-200">
+                <div className="text-3xl"></div>
+                <h3 className="mt-3 text-title text-primary">Sports/CCAs Data</h3>
+                <p className="mt-2 text-primary">
                   Find schools excelling in sports and CCAs, with data from National School Games and publicly reported sources.
                 </p>
               </div>
-              <div className="rounded-2xl border border-gray-200 p-6 shadow-sm">
-                <div className="text-3xl">✨</div>
-                <h3 className="mt-3 font-semibold">School Culture Insights</h3>
-                <p className="mt-2 text-gray-600">
+              <div className="bg-white border-2 border-gray-900 rounded-xl p-6 hover:shadow-lg transition-all duration-200">
+                <div className="text-3xl"></div>
+                <h3 className="mt-3 text-title text-primary">School Culture Insights</h3>
+                <p className="mt-2 text-primary">
                   Know what the schools stand for with AI-generated summaries of their culture and values.
                 </p>
               </div>
-              <div className="rounded-2xl border border-gray-200 p-6 shadow-sm">
-                <div className="text-3xl">📍</div>
-                <h3 className="mt-3 font-semibold">Affiliations/IPs</h3>
-                <p className="mt-2 text-gray-600">
+              <div className="bg-white border-2 border-gray-900 rounded-xl p-6 hover:shadow-lg transition-all duration-200">
+                <div className="text-3xl"></div>
+                <h3 className="mt-3 text-title text-primary">Affiliations/IPs</h3>
+                <p className="mt-2 text-primary">
                   Get personalized recommendations considering your primary school affiliations and Integrated Program options.
                 </p>
               </div>
@@ -218,67 +330,49 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Results (distance‑first; humanized names; responsive 1→2 columns) */}
+      {/* Results with enhanced school cards */}
       {results.length > 0 && (
         <section ref={resultsRef} className="py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {results.map((s: any) => {
-              const name = s.full_name || humanize(s.name);
-              const km =
-                s?.distance_km != null
-                  ? Number(s.distance_km).toFixed(1)
-                  : (Number(s?.distance_m ?? 0) / 1000).toFixed(1);
-              const pg = s?.posting_group != null ? `PG ${s.posting_group}` : "IP";
-
-              return (
-                <div key={s.code ?? `${name}-${km}`} className="rounded-2xl border border-gray-200 p-6 shadow-sm">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="text-lg font-semibold">{name}</h3>
-                      {s?.address && (
-                        <p className="mt-1 text-sm text-gray-600">{s.address}</p>
-                      )}
-                      <div className="flex flex-wrap gap-2">
-  {/* Affiliated badge */}
-  <span className={`px-2 py-1 text-xs rounded-full ${
-    s.is_affiliated ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-  }`}>
-    {s.is_affiliated ? 'Affiliated' : 'Non-affiliated'}
-  </span>
-
-  {/* Stream tag */}
-  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-    {s.posting_group == null ? 'Integrated Program' : `Posting Group ${s.posting_group}`}
-  </span>
-
- {/* Cut-off badges (show up to three) */}
-{s.ip_cutoff_max != null && (
-  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-    Integrated Program Cut-off: {s.ip_cutoff_max}
-  </span>
-)}
-
-{s.aff_pg_cutoff_max != null && (
-  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-    Affiliated Cut-off: {s.aff_pg_cutoff_max}
-  </span>
-)}
-
-{s.open_pg_cutoff_max != null && s.open_pg != null && (
-  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-    Posting Group {s.open_pg} Cut-off: {s.open_pg_cutoff_max}
-  </span>
-)}
-                      </div>
-                    </div>
-                    <span className="text-sm text-gray-500 whitespace-nowrap">{km} km</span>
-                  </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Results Header */}
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-primary">
+                  Search Results
+                </h2>
+                <p className="text-primary mt-1">
+                  {results.length} schools found, sorted by distance
+                </p>
+              </div>
+              {selectedSchools.length > 0 && (
+                <div className="text-sm text-primary">
+                  {selectedSchools.length} schools selected for comparison
                 </div>
-              );
-            })}
+              )}
+            </div>
+
+            {/* School Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {results.map((school: any) => (
+                <SchoolCard
+                  key={school.code ?? `${school.name}-${school.distance_km}`}
+                  school={school}
+                  isSelected={selectedSchools.some(s => s.code === school.code)}
+                  onToggleCompare={toggleSchoolComparison}
+                  showComparison={true}
+                />
+              ))}
+            </div>
           </div>
         </section>
       )}
+
+      {/* Comparison Counter */}
+      <ComparisonCounter
+        selectedSchools={selectedSchools}
+        onClearAll={clearAllComparisons}
+        maxSchools={4}
+      />
     </div>
   );
 }
