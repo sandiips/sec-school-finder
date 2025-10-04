@@ -68,16 +68,7 @@ export default function FeedbackWidget() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Give feedback"
-        className="fixed z-[9999] bottom-4 right-4 rounded-full w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-3 bg-accent-blue text-white shadow-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm sm:text-base flex items-center justify-center"
-        style={{
-          position: 'fixed',
-          bottom: '16px',
-          right: '16px',
-          zIndex: 99999,
-          display: 'flex',
-          visibility: 'visible',
-          opacity: 1
-        }}
+        className="fixed bottom-4 right-4 z-40 rounded-full w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-3 bg-accent-blue text-white shadow-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm sm:text-base flex items-center justify-center"
       >
         <span className="hidden sm:inline">Feedback</span>
         <span className="sm:hidden text-lg">💬</span>

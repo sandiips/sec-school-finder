@@ -12,126 +12,125 @@ export default function Navigation() {
     return false;
   };
 
-  const handleNavClick = (destination: string, linkText: string) => {
+  const handleNavClick = (destination: string, linkText: string, isMobile: boolean = false) => {
     sendGAEvent('event', 'navigation_click', {
       destination_page: destination,
       link_text: linkText,
       source_page: pathname,
-      is_mobile: false
+      is_mobile: isMobile
     });
   };
 
-  const handleMobileNavClick = (destination: string, linkText: string) => {
-    sendGAEvent('event', 'navigation_click', {
-      destination_page: destination,
-      link_text: linkText,
-      source_page: pathname,
-      is_mobile: true
-    });
-  };
-
-  // Apple-inspired navigation styling using design system variables
+  // Desktop navigation styling
   const navLinkBase = "px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-out min-h-[44px] flex items-center";
   const navLinkActive = "text-white shadow-md" + " " + "btn-primary";
   const navLinkInactive = "text-gray-600 hover:text-blue-600 hover:bg-blue-50";
 
+  // Mobile navigation styling - smaller and more compact
+  const mobileNavLinkBase = "px-2 py-2 rounded-md text-sm font-medium transition-colors min-h-[44px] flex items-center justify-center";
+  const mobileNavLinkActive = "bg-pink-500 text-white";
+  const mobileNavLinkInactive = "text-gray-700 hover:bg-gray-100";
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Logo wrapped in a Link */}
+
+        {/* Logo */}
+        <Link
+          href="/"
+          className="flex items-center flex-shrink-0"
+          onClick={() => handleNavClick('/', 'Logo')}
+        >
+          <Image
+            src="/logo.svg"
+            alt="School Advisor SG"
+            width={160}
+            height={40}
+            priority
+            className="h-8 sm:h-10 w-auto"
+          />
+        </Link>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden sm:flex items-center gap-1 ml-4">
           <Link
             href="/"
-            className="flex items-center"
-            onClick={() => handleNavClick('/', 'Logo')}
+            className={`${navLinkBase} ${
+              isActive('/') ? navLinkActive : navLinkInactive
+            }`}
+            onClick={() => handleNavClick('/', 'Home')}
           >
-            <Image
-              src="/logo.svg"
-              alt="School Advisor SG"
-              width={160}
-              height={40}
-              priority
-              className="h-10 w-auto"
-            />
+            Home
           </Link>
-          <nav className="ml-4 flex items-center gap-1">
-            <Link
-              href="/"
-              className={`${navLinkBase} ${
-                isActive('/') ? navLinkActive : navLinkInactive
-              }`}
-              onClick={() => handleNavClick('/', 'Home')}
-            >
-              Home
-            </Link>
-            <Link
-              href="/ranking"
-              className={`${navLinkBase} ${
-                isActive('/ranking') ? navLinkActive : navLinkInactive
-              }`}
-              onClick={() => handleNavClick('/ranking', 'School Assistant')}
-            >
-              School Assistant
-            </Link>
-            <Link
-              href="/compare"
-              className={`${navLinkBase} ${
-                isActive('/compare') ? navLinkActive : navLinkInactive
-              }`}
-              onClick={() => handleNavClick('/compare', 'Compare')}
-            >
-              Compare
-            </Link>
-            <Link
-              href="/faq"
-              className={`${navLinkBase} ${
-                isActive('/faq') ? navLinkActive : navLinkInactive
-              }`}
-              onClick={() => handleNavClick('/faq', 'FAQ')}
-            >
-              FAQ
-            </Link>
-          </nav>
-        </div>
-
-        {/* Additional Navigation Items */}
-        <div className="flex items-center gap-2">
-          {/* Search Icon for mobile */}
           <Link
-            href="/"
-            className="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
-            title="Search Schools"
-            onClick={() => handleMobileNavClick('/', 'Search Icon')}
+            href="/ranking"
+            className={`${navLinkBase} ${
+              isActive('/ranking') ? navLinkActive : navLinkInactive
+            }`}
+            onClick={() => handleNavClick('/ranking', 'School Assistant')}
           >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-            </svg>
+            School Assistant
           </Link>
-
-          {/* Comparison Icon for mobile */}
           <Link
             href="/compare"
-            className="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
-            title="Compare Schools"
-            onClick={() => handleMobileNavClick('/compare', 'Compare Icon')}
+            className={`${navLinkBase} ${
+              isActive('/compare') ? navLinkActive : navLinkInactive
+            }`}
+            onClick={() => handleNavClick('/compare', 'Compare')}
           >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-            </svg>
+            Compare
           </Link>
-
-          {/* FAQ Icon for mobile */}
           <Link
             href="/faq"
-            className="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
-            title="FAQ"
-            onClick={() => handleMobileNavClick('/faq', 'FAQ Icon')}
+            className={`${navLinkBase} ${
+              isActive('/faq') ? navLinkActive : navLinkInactive
+            }`}
+            onClick={() => handleNavClick('/faq', 'FAQ')}
           >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-            </svg>
+            FAQ
           </Link>
-        </div>
+        </nav>
+
+        {/* Mobile Navigation - Direct Links */}
+        <nav className="flex sm:hidden items-center gap-1 ml-2">
+          <Link
+            href="/"
+            className={`${mobileNavLinkBase} ${
+              isActive('/') ? mobileNavLinkActive : mobileNavLinkInactive
+            }`}
+            onClick={() => handleNavClick('/', 'Home', true)}
+          >
+            Home
+          </Link>
+          <Link
+            href="/ranking"
+            className={`${mobileNavLinkBase} ${
+              isActive('/ranking') ? mobileNavLinkActive : mobileNavLinkInactive
+            }`}
+            onClick={() => handleNavClick('/ranking', 'School Assistant', true)}
+          >
+            Assistant
+          </Link>
+          <Link
+            href="/compare"
+            className={`${mobileNavLinkBase} ${
+              isActive('/compare') ? mobileNavLinkActive : mobileNavLinkInactive
+            }`}
+            onClick={() => handleNavClick('/compare', 'Compare', true)}
+          >
+            Compare
+          </Link>
+          <Link
+            href="/faq"
+            className={`${mobileNavLinkBase} ${
+              isActive('/faq') ? mobileNavLinkActive : mobileNavLinkInactive
+            }`}
+            onClick={() => handleNavClick('/faq', 'FAQ', true)}
+          >
+            FAQ
+          </Link>
+        </nav>
+
       </div>
     </header>
   );
