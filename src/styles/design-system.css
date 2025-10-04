@@ -1,0 +1,291 @@
+/* Apple-Style Design System for School Advisor SG */
+
+/* Custom CSS Variables for Design System */
+:root {
+  /* Colors - School Performance */
+  --school-excellent: #10b981;  /* Green for top performance */
+  --school-good: #3b82f6;       /* Blue for good performance */
+  --school-average: #f59e0b;    /* Amber for average */
+  --school-competitive: #ef4444; /* Red for competitive */
+
+  /* Colors - School Types */
+  --school-ip: #8b5cf6;         /* Purple for IP programs */
+  --school-affiliated: #06b6d4; /* Cyan for affiliations */
+  --school-boys: #3b82f6;       /* Blue for boys schools */
+  --school-girls: #8b5cf6;      /* Purple for girls schools */
+  --school-coed: #10b981;       /* Green for co-ed schools */
+
+  /* Spacing System - 8px grid */
+  --space-xs: 0.25rem;    /* 4px */
+  --space-sm: 0.5rem;     /* 8px */
+  --space-md: 1rem;       /* 16px */
+  --space-lg: 1.5rem;     /* 24px */
+  --space-xl: 2rem;       /* 32px */
+  --space-2xl: 3rem;      /* 48px */
+  --space-3xl: 4rem;      /* 64px */
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;  /* 6px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-2xl: 1.5rem;   /* 24px */
+
+  /* Shadows - Apple-style */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Typography Scale */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+  --text-6xl: 3.75rem;    /* 60px */
+}
+
+/* Apple-Style Component Base Classes */
+
+/* Card Component */
+.apple-card {
+  @apply bg-white rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.apple-card:hover {
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-2px);
+}
+
+/* Button Components */
+.apple-button {
+  @apply inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  border-radius: var(--radius-md);
+}
+
+.apple-button-primary {
+  @apply bg-blue-600 text-white border border-blue-600 hover:bg-blue-700 focus:ring-blue-500 active:bg-blue-800;
+}
+
+.apple-button-secondary {
+  @apply bg-white text-blue-600 border border-blue-600 hover:bg-blue-50 focus:ring-blue-500 active:bg-blue-100;
+}
+
+/* Input Components */
+.apple-input {
+  @apply w-full rounded-lg border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
+  border-radius: var(--radius-md);
+}
+
+/* Badge Components */
+.apple-badge {
+  @apply inline-flex items-center font-medium rounded-full border;
+  border-radius: 9999px;
+}
+
+.apple-badge-small {
+  @apply px-2 py-1 text-xs;
+}
+
+.apple-badge-medium {
+  @apply px-3 py-1 text-sm;
+}
+
+.apple-badge-large {
+  @apply px-4 py-2 text-base;
+}
+
+/* Performance Color Classes */
+.badge-excellent {
+  background-color: var(--school-excellent);
+  color: white;
+  border-color: var(--school-excellent);
+}
+
+.badge-good {
+  background-color: var(--school-good);
+  color: white;
+  border-color: var(--school-good);
+}
+
+.badge-average {
+  background-color: var(--school-average);
+  color: white;
+  border-color: var(--school-average);
+}
+
+.badge-competitive {
+  background-color: var(--school-competitive);
+  color: white;
+  border-color: var(--school-competitive);
+}
+
+/* School Type Color Classes */
+.badge-ip {
+  background-color: var(--school-ip);
+  color: white;
+  border-color: var(--school-ip);
+}
+
+.badge-affiliated {
+  background-color: var(--school-affiliated);
+  color: white;
+  border-color: var(--school-affiliated);
+}
+
+.badge-boys {
+  background-color: var(--school-boys);
+  color: white;
+  border-color: var(--school-boys);
+}
+
+.badge-girls {
+  background-color: var(--school-girls);
+  color: white;
+  border-color: var(--school-girls);
+}
+
+.badge-coed {
+  background-color: var(--school-coed);
+  color: white;
+  border-color: var(--school-coed);
+}
+
+/* Section Headers */
+.apple-section-header {
+  @apply text-2xl font-bold text-gray-900 mb-6;
+}
+
+.apple-subsection-header {
+  @apply text-lg font-semibold text-gray-900 mb-4;
+}
+
+/* Apple-Style Gradients */
+.apple-gradient-primary {
+  background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+}
+
+.apple-gradient-secondary {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+}
+
+.apple-gradient-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.apple-gradient-hero {
+  background: linear-gradient(135deg, #1e40af 0%, #7c3aed 50%, #ec4899 100%);
+}
+
+/* Glass Morphism Effects */
+.apple-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.apple-glass-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Hover Effects */
+.apple-hover-lift {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.apple-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Typography */
+.apple-heading-hero {
+  @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight;
+}
+
+.apple-heading-section {
+  @apply text-2xl md:text-3xl font-bold;
+}
+
+.apple-heading-card {
+  @apply text-lg font-semibold;
+}
+
+.apple-text-body {
+  @apply text-base text-gray-700 leading-relaxed;
+}
+
+.apple-text-caption {
+  @apply text-sm text-gray-600;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .apple-card {
+    @apply rounded-lg;
+    border-radius: var(--radius-lg);
+  }
+
+  .apple-section-header {
+    @apply text-xl;
+  }
+
+  .apple-heading-hero {
+    @apply text-3xl;
+  }
+}
+
+/* Loading States */
+.apple-loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Focus States */
+.apple-focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+/* Transition Utilities */
+.apple-transition {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.apple-transition-slow {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Grid System */
+.apple-grid-1 { @apply grid grid-cols-1; }
+.apple-grid-2 { @apply grid grid-cols-1 md:grid-cols-2; }
+.apple-grid-3 { @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3; }
+.apple-grid-4 { @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4; }
+
+/* Spacing Utilities */
+.apple-spacing { gap: var(--space-md); }
+.apple-spacing-sm { gap: var(--space-sm); }
+.apple-spacing-lg { gap: var(--space-lg); }
+
+/* Container */
+.apple-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}

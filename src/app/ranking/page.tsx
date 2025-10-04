@@ -4,6 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { sendGAEvent } from '@next/third-parties/google';
+import Navigation from '@/components/ui/Navigation';
+import { isValidSingaporePostalCode, getPostalCodeErrorMessage } from '@/lib/validation';
+import MobileExplainerCards from '@/components/mobile/MobileExplainerCards';
 
 
 // Extracted primary school names from the SQL file
@@ -210,7 +213,7 @@ function Importance(
 ) {
   return (
     <div className="space-y-2">
-      {label ? <div className="text-sm font-medium text-gray-900">{label}</div> : null}
+      {label ? <div className="text-sm font-medium text-white">{label}</div> : null}
       <div className="grid grid-cols-3 gap-2">
         {IMPORTANCE_OPTS.map((o) => (
           <button
@@ -218,7 +221,7 @@ function Importance(
             type="button"
             onClick={() => onChange(o)}
             className={`py-2 rounded border text-sm font-medium
-              ${value===o ? 'bg-rose-600 text-white border-rose-600' : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'}`}
+              ${value===o ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-black border-gray-300 hover:bg-blue-50'}`}
           >
             {o}
           </button>
@@ -263,13 +266,13 @@ function MultiSelect(
         {value.length ? (
           <div className="flex flex-wrap gap-1">
             {value.map((v: string) => (
-              <span key={v} className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-900">
+              <span key={v} className="inline-flex items-center gap-1 rounded-full bg-gray-600 px-2 py-1 text-xs font-medium text-white">
                 {v}
-                <span onClick={(e)=>{e.stopPropagation(); removeChip(v);}} className="cursor-pointer text-gray-500 hover:text-gray-700" aria-label={`Remove ${v}`}>×</span>
+                <span onClick={(e)=>{e.stopPropagation(); removeChip(v);}} className="cursor-pointer text-gray-300 hover:text-white" aria-label={`Remove ${v}`}>×</span>
               </span>
             ))}
           </div>
-        ) : <span className="text-gray-500">{placeholder}</span>}
+        ) : <span className="text-placeholder">{placeholder}</span>}
       </button>
 
       {open && (
@@ -279,7 +282,7 @@ function MultiSelect(
               placeholder="Search…"
               value={q}
               onChange={(e: React.ChangeEvent<HTMLInputElement>)=>setQ(e.target.value)}
-              className="w-full rounded border border-gray-200 px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400"
+              className="w-full rounded border border-gray-200 px-2 py-1 text-sm text-black placeholder:text-placeholder"
             />
           </div>
           <ul className="max-h-56 overflow-auto">
@@ -290,7 +293,7 @@ function MultiSelect(
                   <button
                     type="button"
                     onClick={() => toggleValue(opt)}
-                    className={`w-full px-3 py-2 text-left text-sm ${selected ? 'bg-rose-50 text-rose-700' : 'hover:bg-gray-50 text-gray-900'}`}
+                    className={`w-full px-3 py-2 text-left text-sm ${selected ? 'bg-blue-50 text-blue-700' : 'hover:bg-blue-50 text-black'}`}
                   >
                     <label className="inline-flex items-center gap-2">
                       <input type="checkbox" readOnly checked={selected}/>
@@ -300,7 +303,7 @@ function MultiSelect(
                 </li>
               );
             })}
-            {!filtered.length && <li className="px-3 py-2 text-sm text-gray-500">No matches</li>}
+            {!filtered.length && <li className="px-3 py-2 text-sm text-muted">No matches</li>}
           </ul>
         </div>
       )}
@@ -346,12 +349,12 @@ function SingleSelect({ placeholder, options, value, onChange }: SingleSelectPro
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full min-h-[42px] rounded border border-gray-300 bg-white px-2 py-2 text-left"
+        className="w-full min-h-[42px] rounded border border-gray-300 bg-white px-2 py-2 text-left text-black"
       >
         {value ? (
-          <span className="text-gray-900">{value}</span>
+          <span className="text-black">{value}</span>
         ) : (
-          <span className="text-gray-500">{placeholder}</span>
+          <span className="text-placeholder">{placeholder}</span>
         )}
       </button>
 
@@ -362,7 +365,7 @@ function SingleSelect({ placeholder, options, value, onChange }: SingleSelectPro
               placeholder="Search…"
               value={q}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
-              className="w-full rounded border border-gray-200 px-2 py-1 text-sm text-gray-900 placeholder:text-gray-400"
+              className="w-full rounded border border-gray-200 px-2 py-1 text-sm text-black placeholder:text-placeholder"
             />
           </div>
           <ul className="max-h-56 overflow-auto">
@@ -375,14 +378,14 @@ function SingleSelect({ placeholder, options, value, onChange }: SingleSelectPro
                     setOpen(false);
                   }}
                   className={`w-full px-3 py-2 text-left text-sm ${
-                    value === opt ? 'bg-rose-50 text-rose-700' : 'hover:bg-gray-50 text-gray-900'
+                    value === opt ? 'bg-blue-50 text-blue-700' : 'hover:bg-blue-50 text-black'
                   }`}
                 >
                   {opt}
                 </button>
               </li>
             ))}
-            {!filtered.length && <li className="px-3 py-2 text-sm text-gray-500">No matches</li>}
+            {!filtered.length && <li className="px-3 py-2 text-sm text-muted">No matches</li>}
           </ul>
         </div>
       )}
@@ -421,7 +424,7 @@ function getMentionedSports(text: string, list: string[]): string[] {
   return found;
 }
 function highlightSports(text: string, list: string[]) {
-  if (!text) return <span className="text-gray-500">No sports explanation available.</span>;
+  if (!text) return <span className="text-muted">No sports explanation available.</span>;
   const rx = buildSportsRegex(list);
   const parts = text.split(rx);
   let idx = 0;
@@ -457,6 +460,7 @@ export default function Page() {
   // Validation states
   const [isPsleValid, setIsPsleValid] = useState<boolean>(false);
   const [isPostalValid, setIsPostalValid] = useState<boolean>(false);
+  const [postalError, setPostalError] = useState<string>('');
 
   // Priorities
   const [distImp, setDistImp] = useState<ImportanceLevel>('Low');
@@ -473,29 +477,80 @@ export default function Page() {
   const [summaryExplanation, setSummaryExplanation] = useState<string>('');
   const [schoolExplanations, setSchoolExplanations] = useState<Record<string, string>>({});
 
-  // Options (try /api/options; fall back to constants)
+  // Options (dynamic from API with fallbacks)
   const [sportsList, setSportsList] = useState<string[]>(FALLBACK_SPORTS);
   const [ccaList, setCcaList] = useState<string[]>(FALLBACK_CCAS);
   const [cultureList, setCultureList] = useState<string[]>(FALLBACK_CULTURE);
+  const [optionsLoading, setOptionsLoading] = useState<boolean>(true);
+  const [optionsError, setOptionsError] = useState<string>('');
 
   // Results
   const [summary, setSummary] = useState<string>('');
   const [schools, setSchools] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [hasPerformedSearch, setHasPerformedSearch] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const hasResults = schools.length > 0;
+  const hasSearched = hasPerformedSearch; // Has run a search (regardless of results)
   const resultsRef = useRef<HTMLDivElement | null>(null);
+
+  // Fetch dynamic options from API
+  useEffect(() => {
+    async function fetchOptions() {
+      try {
+        setOptionsLoading(true);
+        const response = await fetch('/api/options');
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch options: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Update state with API data, keeping fallbacks as defaults
+        if (data.sports && Array.isArray(data.sports)) {
+          setSportsList(data.sports);
+        }
+        if (data.ccas && Array.isArray(data.ccas)) {
+          setCcaList(data.ccas);
+        }
+        if (data.culture && Array.isArray(data.culture)) {
+          setCultureList(data.culture);
+        }
+
+        setOptionsError('');
+      } catch (error) {
+        console.error('Failed to fetch options:', error);
+        setOptionsError('Unable to load options. Using default values.');
+        // Keep fallback values already set in state
+      } finally {
+        setOptionsLoading(false);
+      }
+    }
+
+    fetchOptions();
+  }, []);
 
   // Validate inputs
   useEffect(() => {
     const psleNum = Number(psle);
     setIsPsleValid(!isNaN(psleNum) && psleNum >= 4 && psleNum <= 30);
-    setIsPostalValid(/^\d{6}$/.test(postal));
+
+    const postalValid = isValidSingaporePostalCode(postal);
+    setIsPostalValid(postalValid);
+
+    if (postal.length > 0 && !postalValid) {
+      setPostalError(getPostalCodeErrorMessage(postal));
+    } else {
+      setPostalError('');
+    }
   }, [psle, postal]);
 
   const isFormValid =
     isPsleValid &&
     isPostalValid &&
-    primarySchool !== '';
+    primarySchool !== '' &&
+    !optionsLoading;
 
   useEffect(() => {
     if (hasResults) resultsRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -505,11 +560,40 @@ export default function Page() {
     e.preventDefault();
 
     if (!isFormValid) {
+      // Track form validation failure
+      sendGAEvent('event', 'ai_ranking_validation_failed', {
+        psle_score: Number(psle) || null,
+        gender: gender || null,
+        postal_code: postal || null,
+        primary_school: primarySchool || null,
+        has_sports_selected: sports.length > 0,
+        has_ccas_selected: ccas.length > 0,
+        has_culture_selected: cultures.length > 0
+      });
       alert('Please ensure all inputs are valid before submitting.');
       return;
     }
 
+    // Track AI ranking search attempt
+    sendGAEvent('event', 'ai_ranking_search_attempt', {
+      psle_score: Number(psle),
+      gender,
+      postal_code: postal,
+      primary_school: primarySchool,
+      distance_importance: distImp,
+      sports_importance: sportImp,
+      cca_importance: ccaImp,
+      culture_importance: cultureImp,
+      sports_count: sports.length,
+      ccas_count: ccas.length,
+      culture_count: cultures.length,
+      sports_selected: sports.join(','),
+      ccas_selected: ccas.join(','),
+      culture_selected: cultures.join(',')
+    });
+
     setLoading(true);
+    setHasPerformedSearch(false); // Reset search flag when starting new search
     try {
       const geo = await fetch(`/api/geocode?pincode=${postal}`).then((r) =>
         r.json()
@@ -542,6 +626,8 @@ export default function Page() {
       if (res.error) throw new Error(res.error);
       setSummaryExplanation(res.summary || '');
       setSchools(res.schools || []);
+      setSuggestions(res.suggestions || []);
+      setHasPerformedSearch(true); // Mark that we've performed a search
 
       // /api/explain call
      const explainPayload = {
@@ -582,8 +668,50 @@ setCcaExpl(
   )
 );
 
+      // Track successful AI ranking completion
+      sendGAEvent('event', 'ai_ranking_search_success', {
+        psle_score: Number(psle),
+        gender,
+        postal_code: postal,
+        primary_school: primarySchool,
+        results_count: (res.schools || []).length,
+        sports_count: sports.length,
+        ccas_count: ccas.length,
+        culture_count: cultures.length,
+        has_summary_explanation: !!(res.summary || explainRes.overall),
+        has_school_explanations: (explainRes.per_school || []).length > 0,
+        search_type: 'ai_assistant_ranking'
+      });
+
     } catch (err: any) {
-      alert(err?.message || String(err));
+      console.error('AI ranking search failed:', err);
+
+      // Track ranking search error
+      sendGAEvent('event', 'ai_ranking_search_error', {
+        psle_score: Number(psle),
+        gender,
+        postal_code: postal,
+        primary_school: primarySchool,
+        error_message: err?.message || String(err),
+        sports_count: sports.length,
+        ccas_count: ccas.length,
+        culture_count: cultures.length
+      });
+
+      // Provide user-friendly error messages
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+
+      if (err?.message?.includes('geocode')) {
+        errorMessage = 'Unable to validate your postal code. Please check and try again.';
+      } else if (err?.message?.includes('rank')) {
+        errorMessage = 'Unable to rank schools at the moment. Please try again later.';
+      } else if (err?.message?.includes('explain')) {
+        errorMessage = 'School recommendations generated, but detailed explanations are temporarily unavailable.';
+      } else if (err?.message?.includes('network') || err?.message?.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -592,13 +720,13 @@ setCcaExpl(
   const FormBlocks = (
     <form onSubmit={onSubmit} className="space-y-6">
       {/* 1. Basic Information */}
-      <div className="rounded-xl border bg-white p-5 shadow-sm">
-        <h3 className="text-lg font-semibold mb-4 text-gray-900">
+      <div className="card-base bg-gray-800 border-gray-700">
+        <h3 className="text-lg font-semibold mb-4 text-white">
           1. Basic Information
         </h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               PSLE Score (4–30)
             </label>
             <input
@@ -606,52 +734,48 @@ setCcaExpl(
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPsle(e.target.value)}
               type="number"
               min={4}
-              max={32}
+              max={30}
               placeholder="Enter score"
-              className={`w-full rounded border px-3 py-2 text-black ${
+              className={`input-modern ${
                 isPsleValid ? 'border-gray-300' : 'border-red-500'
               }`}
             />
             {!isPsleValid && (
-              <p className="text-sm text-gray-500">PSLE score must be a number between 4 and 30</p>
+              <p className="text-sm text-red-400">PSLE score must be a number between 4 and 30</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Gender Preference
             </label>
-            <select
+            <SingleSelect
+              placeholder="Select Gender Preference"
+              options={['Any', 'Boys', 'Girls', 'Co-ed']}
               value={gender}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setGender(e.target.value)}
-              className="w-full rounded border border-gray-300 px-3 py-2 text-gray-900"
-            >
-              <option>Any</option>
-              <option>Boys</option>
-              <option>Girls</option>
-              <option>Co-ed</option>
-            </select>
+              onChange={setGender}
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Home Postal Code (6-digit)
             </label>
             <input
               value={postal}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPostal(e.target.value)}
               placeholder="6-digit postal code"
-              className={`w-full rounded border px-3 py-2 text-black ${
+              className={`input-modern ${
                 isPostalValid ? 'border-gray-300' : 'border-red-500'
               }`}
             />
-            {!isPostalValid && (
-              <p className="text-sm text-gray-500">Please enter a valid 6-digit Singapore postal code.</p>
+            {!isPostalValid && postalError && (
+              <p className="text-sm text-red-400">{postalError}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">
+            <label className="block text-sm font-medium text-white mb-1">
               Current Primary School
             </label>
             <SingleSelect
@@ -661,152 +785,217 @@ setCcaExpl(
               onChange={setPrimarySchool}
             />
             {primarySchool === '' && (
-              <p className="text-sm text-gray-500">Please select your primary school.</p>
+              <p className="text-sm text-red-400">Please select your primary school.</p>
             )}
           </div>
         </div>
       </div>
 
       {/* 2. Tell Us What's Important */}
-      <div className="rounded-xl border bg-white p-5 shadow-sm">
-        <h3 className="text-lg font-semibold mb-4 text-gray-900">2. Tell Us What’s Important</h3>
+      <div className="card-base bg-gray-800 border-gray-700">
+        <h3 className="text-lg font-semibold mb-4 text-white">2. Tell Us What's Important</h3>
+
+        {/* Options Loading/Error State */}
+        {optionsLoading && (
+          <div className="mb-4 p-3 bg-blue-100 border border-blue-300 rounded-lg">
+            <p className="text-blue-800 text-sm">Loading preferences options...</p>
+          </div>
+        )}
+
+        {optionsError && (
+          <div className="mb-4 p-3 bg-yellow-100 border border-yellow-300 rounded-lg">
+            <p className="text-yellow-800 text-sm">{optionsError}</p>
+          </div>
+        )}
 
         <div className="space-y-6">
           {/* Sports */}
-          <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 space-y-3">
-            <div className="font-medium text-gray-900">Sports Interests</div>
+          <div className="rounded-lg border border-gray-600 bg-gray-700 p-4 space-y-3">
+            <div className="font-medium text-white">Sports Interests</div>
             <Importance label="" value={sportImp} onChange={setSportImp}/>
-            <MultiSelect placeholder="Select sports..." options={FALLBACK_SPORTS} value={sports} onChange={setSports}/>
+            <MultiSelect
+              placeholder={optionsLoading ? "Loading sports..." : "Select sports..."}
+              options={sportsList}
+              value={sports}
+              onChange={setSports}
+            />
           </div>
 
           {/* CCAs */}
-          <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 space-y-3">
-            <div className="font-medium text-gray-900">CCA Interests</div>
+          <div className="rounded-lg border border-gray-600 bg-gray-700 p-4 space-y-3">
+            <div className="font-medium text-white">CCA Interests</div>
             <Importance label="" value={ccaImp} onChange={setCcaImp}/>
-            <MultiSelect placeholder="Select CCAs..." options={FALLBACK_CCAS} value={ccas} onChange={setCcas}/>
+            <MultiSelect
+              placeholder={optionsLoading ? "Loading CCAs..." : "Select CCAs..."}
+              options={ccaList}
+              value={ccas}
+              onChange={setCcas}
+            />
           </div>
 
           {/* Culture */}
-          <div className="rounded-lg border border-rose-100 bg-rose-50 p-4 space-y-3">
-            <div className="font-medium text-gray-900">School Culture</div>
+          <div className="rounded-lg border border-gray-600 bg-gray-700 p-4 space-y-3">
+            <div className="font-medium text-white">School Culture</div>
             <Importance label="" value={cultureImp} onChange={setCultureImp}/>
-            <MultiSelect placeholder="Select culture traits..." options={FALLBACK_CULTURE} value={cultures} onChange={setCultures}/>
+            <MultiSelect
+              placeholder={optionsLoading ? "Loading culture traits..." : "Select culture traits..."}
+              options={cultureList}
+              value={cultures}
+              onChange={setCultures}
+            />
           </div>
         </div>
       </div>
 
       <button
+        id="search-btn"
         type="submit"
         disabled={!isFormValid || loading}
-        className="w-full rounded-lg bg-rose-600 px-4 py-3 font-medium text-white hover:bg-rose-700 disabled:opacity-60"
+        className="btn-primary w-full disabled:opacity-60"
       >
-        {loading ? 'Finding your matches…' : '✨ Find Schools for Me ✨'}
+        {optionsLoading ? 'Loading preferences...' : loading ? 'Finding your matches…' : '✨ Find Schools for Me ✨'}
       </button>
+
+      {/* Zero Results Message - shown below the search button */}
+      {hasSearched && !hasResults && (
+        <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-center justify-center mb-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100">
+              <svg className="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+          </div>
+          <h3 className="text-sm font-semibold text-yellow-800 mb-2 text-center">No Schools Found</h3>
+          <p className="text-yellow-700 text-sm mb-3 text-center">
+            {suggestions.length > 0
+              ? "No schools match your current criteria. Try these suggestions:"
+              : "No schools match your current criteria. Try adjusting your preferences and searching again."
+            }
+          </p>
+
+          {suggestions.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {suggestions.map((suggestion, index) => (
+                <div key={index} className="flex items-start space-x-2">
+                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-yellow-200 text-yellow-800 text-xs font-medium mt-0.5">
+                    {index + 1}
+                  </span>
+                  <span className="text-yellow-700 text-sm">{suggestion}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Quick Action Buttons */}
+          {gender && gender !== 'Any' && (
+            <div className="flex justify-center">
+              <button
+                onClick={() => {
+                  setGender('Any');
+                  // Trigger search automatically after a short delay
+                  setTimeout(() => {
+                    const form = document.querySelector('form');
+                    if (form) {
+                      const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                      form.dispatchEvent(submitEvent);
+                    }
+                  }, 100);
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium"
+              >
+                Try "Any Gender"
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </form>
   );
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-orange-50">
-      {/* ===== Top App Header with logo + nav ===== */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-    <div className="flex items-center gap-3">
-      <Link href="/">
-      <Image
-        src="/logo.svg"
-        alt="School Advisor"
-        width={160}
-        height={40}
-        priority
-        className="h-10 w-auto"
-      />
-      </Link>
-      <nav className="ml-2 flex items-center gap-2">
-        <Link
-          href="/"
-          className="px-3 py-1.5 rounded text-sm font-medium text-gray-800 hover:bg-gray-100"
-        >
-          Home
-        </Link>
-        <Link
-          href="/ranking"
-          className="flex items-center gap-2 px-3 py-1.5 rounded text-sm font-medium text-gray-800 hover:text-white hover:bg-pink-600 transition-colors"
-        >
-          <span>School Assistant</span>
-          <span className="bg-pink-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-            New
-          </span>
-        </Link>
-      </nav>
-    </div>
-  </div>
-</header>
+    <main className="min-h-screen">
+      <Navigation />
 
-      {/* ===== Title strip ===== */}
-      <header className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900">School Assistant</h1>
-        <p className="mt-2 text-gray-700">Find your perfect Top 6 secondary schools with AI-powered insights</p>
-        <span className="mt-3 inline-block rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">Premium Feature (In Beta)</span>
-      </header>
+      {/* ===== Hero section with light background ===== */}
+      <section className="bg-white text-black">
+        <div className="container mx-auto px-4 py-8 text-center">
+          <h1 className="text-3xl font-bold text-black">School Assistant</h1>
+          <p className="mt-2 text-black">Find your perfect Top 6 secondary schools with AI-powered insights</p>
+          <span className="mt-3 inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Premium Feature (In Beta)</span>
+        </div>
+      </section>
 
-      {/* Layout shifts once we have results */}
-      {!hasResults ? (
-        // Centered form before results
-        <section className="container mx-auto max-w-4xl px-4 pb-16 flex justify-center">
-          <div className="w-full max-w-xl">{FormBlocks}</div>
+      {/* Layout shifts once we have searched */}
+      {!hasSearched ? (
+        // Centered form before any search
+        <section className="bg-gray-900 min-h-screen">
+          <div className="container mx-auto max-w-4xl px-4 py-16 flex justify-center">
+            <div className="w-full max-w-xl">{FormBlocks}</div>
+          </div>
         </section>
       ) : (
         // 2-column grid after results
         <section
           ref={resultsRef}
-          className="container mx-auto px-4 pb-16 grid grid-cols-1 md:grid-cols-3 gap-8"
+          className="bg-gray-900 min-h-screen"
         >
-          {/* Left sticky filters */}
-          <aside className="md:col-span-1 md:sticky md:top-6 self-start">
-            {FormBlocks}
-          </aside>
+          <div className="container mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left sticky filters */}
+            <aside className="lg:col-span-1 lg:sticky lg:top-6 self-start">
+              <div className="w-full">{FormBlocks}</div>
+            </aside>
 
-          {/* Right: AI summary + ranked cards */}
-          <div className="md:col-span-2 space-y-6">
+            {/* Right: AI summary + ranked cards */}
+            <div className="lg:col-span-2 space-y-6 bg-gray-900 p-6 rounded-lg">
             {/* AI Summary */}
             {summaryExplanation && (
-              <div className="bg-blue-50 p-4 rounded-lg shadow text-gray-700">
-                <h2 className="text-xl font-semibold mb-2">Ranking Summary </h2>
-                <p>{summaryExplanation}</p>
+              <div className="bg-gray-800 border border-gray-600 p-4 rounded-lg shadow">
+                <h2 className="text-xl font-semibold mb-2 text-white">Ranking Summary</h2>
+                <p className="text-gray-300">{summaryExplanation}</p>
               </div>
             )}
 
-            {/* Recommendations Summary */}
-<div className="bg-yellow-50 p-4 rounded-lg shadow text-gray-700 mb-6">
-  <h2 className="text-xl font-semibold mb-2">Recommendations Summary</h2>
-  <ul className="list-disc pl-5 space-y-1">
-    Below 6 school choices provide the best fit based on your preferences.
-    <li>Sports data is based on schools performance at the National School Games over 2022-2024.</li>
-    <li>CCA data is based on publicly available information at organizer or school websites.</li>
-    <li>Culture Summaries are generated from Principal's message and Values reported on school websites.</li>
-  </ul>
-</div>
+            {/* Recommendations Summary - only show when we have results */}
+            {hasResults && (
+              <div className="bg-gray-900 p-4 mb-6">
+                <h2 className="text-xl font-bold mb-2 text-black">Recommendations Summary</h2>
+                <div className="text-black">
+                  <p className="mb-3">Below {Math.min(schools.length, 6)} school choices provide the best fit based on your preferences.</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Sports data is based on schools performance at the National School Games over 2022-2024.</li>
+                    <li>CCA data is based on publicly available information at organizer or school websites.</li>
+                    <li>Culture Summaries are generated from Principal's message and Values reported on school websites.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
 
-{/* Top 6 Schools */}
-<h2 className="text-xl font-semibold text-gray-900">Your Top 6 School Matches</h2>
-            {schools.slice(0, 6).map((s, i) => {
+{/* Section break line - only show when we have results */}
+{hasResults && <div className="border-t border-gray-600 mb-6"></div>}
+
+{/* Top 6 Schools or No Results */}
+{hasResults ? (
+  <>
+    <h2 className="text-xl font-semibold text-black">Your Top 6 School Matches</h2>
+    {schools.slice(0, 6).map((s, i) => {
               const sportsText = schoolExplanations[s.code] || '';
-              const mentioned = getMentionedSports(sportsText, FALLBACK_SPORTS);
+              const mentioned = getMentionedSports(sportsText, sportsList);
               const cultureShort = schoolCultureShort[s.code] || '';
               const cultureTags: string[] = Array.isArray(s.culture_top_titles) ? s.culture_top_titles : [];
               return (
-                <div key={s.row_id} className="rounded-xl border bg-white p-6 shadow-sm">
+                <div key={s.row_id} className="card-school-result card-interactive">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 font-semibold text-rose-700">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 font-semibold text-blue-700">
                         {i + 1}
                       </div>
                       <div>
-                        <div className="text-lg font-semibold text-gray-900">{formatSchoolName(s.name)}</div>
-                        <div className="text-sm text-gray-700">{s.address}</div>
+                        <div className="text-lg font-semibold text-black">{formatSchoolName(s.name)}</div>
+                        <div className="text-sm text-secondary">{s.address}</div>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-secondary">
                       {typeof s.distance_km === 'number' ? s.distance_km.toFixed(1) : ''} km
                     </div>
                   </div>
@@ -842,71 +1031,46 @@ setCcaExpl(
                     )}
                   </div>
 
+                  {/* View Profile Button */}
+                  <div className="mt-4">
+                    <Link
+                      href={`/school/${s.code || s.school_code}`}
+                      className="btn-primary text-sm"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                      </svg>
+                      View Profile
+                    </Link>
+                  </div>
+
                   {s.why && (
                     <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
-                      <div className="mb-2 text-sm font-semibold text-gray-900">
+                      <div className="mb-2 text-sm font-semibold text-black">
                         Why this school could be a great fit
                       </div>
 
-                      {/* ===== MOBILE: horizontal rail (3 stretched boxes) ===== */}
-                      <div className="md:hidden -mx-4 px-4">
-                        <div
-                          className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory"
-                          aria-label="School strengths: Sports, CCAs, Culture"
-                        >
-                          {/* SPORTS */}
-                          <section className="min-w-[85%] snap-start rounded-lg border border-green-200 bg-green-50 p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-semibold text-green-900 uppercase tracking-wide">Sports</span>
-                              <div className="flex flex-wrap gap-1">
-                                {mentioned.map(sp => (
-                                  <span
-                                    key={sp}
-                                    className="rounded-full bg-green-200 text-green-900 px-2 py-0.5 text-xs font-medium"
-                                  >
-                                    {sp}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                            <p className="text-sm leading-relaxed text-green-900">
-                              {sportsText
-                                ? highlightSports(sportsText, FALLBACK_SPORTS)
-                                : <span className="text-green-800/70">Couldn't find a fit with sports selected</span>}
-                            </p>
-                          </section>
 
-                          {/* CCAs */}
-                          <section className="min-w-[85%] snap-start rounded-lg border border-indigo-200 bg-indigo-50 p-3">
-                        <div className="text-sm font-semibold text-indigo-900 uppercase tracking-wide mb-2">CCAs</div>
-                        <p className="text-sm leading-relaxed text-indigo-900">
-                          {(ccaExpl[String(s.code)] || '').trim()
-                            ? ccaExpl[String(s.code)]
-                            : <span className="text-indigo-900/70">Couldn't find a fit with CCAs selected</span>}
-                            </p>
-                          </section>
-
-
-                          {/* Culture (placeholder) */}
-                          <section className="min-w-[85%] snap-start rounded-lg border border-amber-200 bg-amber-50 p-3">
-                            <div className="text-sm font-semibold text-amber-900 uppercase tracking-wide mb-2">Culture</div>
-                            {cultureTags.map((t) => (
-                            <span
-                             key={t}
-                            className="rounded-full bg-amber-200 text-amber-900 px-2 py-0.5 text-xs font-medium"
-                             >
-                           {t}
-                           </span>
-                        ))}
-                
-                            <p className="text-sm leading-relaxed text-amber-900">
-                              {cultureShort || 'Culture summary coming soon.'}    </p>
-                          </section>
-                        </div>
+                      {/* ===== MOBILE ONLY: Swipeable explainer cards ===== */}
+                      <div className="mobile-only">
+                        <MobileExplainerCards
+                          sportsData={{
+                            text: sportsText,
+                            mentionedSports: mentioned
+                          }}
+                          ccasData={{
+                            text: ccaExpl[String(s.code)] || ''
+                          }}
+                          cultureData={{
+                            text: cultureShort || 'Culture summary coming soon.',
+                            cultureTags: cultureTags
+                          }}
+                        />
                       </div>
 
-                      {/* ===== DESKTOP: 3-column grid ===== */}
-                      <div className="hidden md:grid md:grid-cols-3 md:gap-4">
+                      {/* ===== DESKTOP ONLY: 3-column grid ===== */}
+                      <div className="desktop-only grid-cols-3 gap-4">
                         {/* SPORTS */}
                         <section className="rounded-lg border border-green-200 bg-green-50 p-3">
                           <div className="flex items-center justify-between mb-2">
@@ -924,7 +1088,7 @@ setCcaExpl(
                           </div>
                           <p className="text-sm leading-relaxed text-green-900">
                             {sportsText
-                              ? highlightSports(sportsText, FALLBACK_SPORTS)
+                              ? highlightSports(sportsText, sportsList)
                               : <span className="text-green-800/70">Couldn't find a fit with sports selected</span>}
                           </p>
                         </section>
@@ -965,10 +1129,10 @@ setCcaExpl(
             {/* Other Schools to Consider */}
             {schools.length > 6 && (
               <>
-                <h2 className="text-xl font-semibold text-gray-900 mt-8">Other Schools to Consider</h2>
+                <h2 className="text-xl font-semibold text-black mt-8">Other Schools to Consider</h2>
                 {schools.slice(6, 10).map((s, i) => {
                   const sportsText = schoolExplanations[s.code] || '';
-                  const mentioned = getMentionedSports(sportsText, FALLBACK_SPORTS);
+                  const mentioned = getMentionedSports(sportsText, sportsList);
                   const cultureShort = schoolCultureShort[s.code] || '';
                   const cultureTags: string[] = Array.isArray(s.culture_top_titles) ? s.culture_top_titles : [];
                   return (
@@ -978,15 +1142,15 @@ setCcaExpl(
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700 font-semibold text-white">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white font-semibold text-black">
                             {i + 7}
                           </div>
                           <div>
-                            <div className="text-lg font-semibold text-gray-900">{formatSchoolName(s.name)}</div>
-                            <div className="text-sm text-gray-700">{s.address}</div>
+                            <div className="text-lg font-semibold text-white">{formatSchoolName(s.name)}</div>
+                            <div className="text-sm text-white">{s.address}</div>
                           </div>
                         </div>
-                        <div className="text-sm text-gray-700">
+                        <div className="text-sm text-white">
                           {typeof s.distance_km === 'number' ? s.distance_km.toFixed(1) : ''} km
                         </div>
                       </div>
@@ -1030,13 +1194,80 @@ setCcaExpl(
                         )}
                       </div>
 
-                      {/* Additional details for schools 7 to 10 */}
-                      {/* ...existing code for sports, CCAs, and culture... */}
+                      {/* View Profile Button */}
+                      <div className="mt-4">
+                        <Link
+                          href={`/school/${s.code || s.school_code}`}
+                          className="btn-primary text-sm"
+                        >
+                          <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                          </svg>
+                          View Profile
+                        </Link>
+                      </div>
                     </div>
                   );
                 })}
               </>
             )}
+  </>
+) : (
+  /* No Results Section */
+  <div className="text-center py-12">
+    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+      <div className="flex items-center justify-center mb-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
+          <svg className="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+      </div>
+      <h3 className="text-lg font-semibold text-yellow-800 mb-2">No Schools Found</h3>
+      <p className="text-yellow-700 mb-4">
+        No schools match your current criteria. Here are some suggestions to help you find suitable schools:
+      </p>
+
+      {suggestions.length > 0 && (
+        <div className="text-left">
+          <h4 className="font-medium text-yellow-800 mb-3">Suggestions:</h4>
+          <ul className="space-y-2">
+            {suggestions.map((suggestion, index) => (
+              <li key={index} className="flex items-start space-x-2">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-200 text-yellow-800 text-xs font-medium">
+                  {index + 1}
+                </span>
+                <span className="text-yellow-700">{suggestion}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+
+    {/* Quick Action Buttons */}
+    {gender && gender !== 'Any' && (
+      <div className="flex justify-center space-x-4 mb-6">
+        <button
+          onClick={() => {
+            setGender('Any');
+            // Trigger search automatically
+            setTimeout(() => document.getElementById('search-btn')?.click(), 100);
+          }}
+          className="btn-primary bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+        >
+          Try "Any Gender"
+        </button>
+      </div>
+    )}
+
+    <p className="text-gray-600 text-sm">
+      Adjust your preferences in the form on the left and search again.
+    </p>
+  </div>
+)}
+            </div>
           </div>
         </section>
       )}

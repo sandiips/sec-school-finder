@@ -1,26 +1,591 @@
 @import "tailwindcss";
 
+/* Apple-Inspired Design System - School Advisor SG */
 :root {
+  /* === Core Colors (Apple-inspired neutral-first approach) === */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1d1d1f;
+
+  /* Neutral Grays (Primary Palette) */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  /* Semantic Colors (Minimal Usage) */
+  --accent-blue: #007aff;      /* Primary actions */
+  --accent-green: #34c759;     /* Success states */
+  --accent-orange: #ff9500;    /* Warning states */
+  --accent-red: #ff3b30;       /* Error states */
+
+  /* Surface Colors */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f9fafb;
+  --surface-elevated: #ffffff;
+  --border-color: #e5e7eb;
+  --border-focus: #007aff;
+
+  /* School Performance Colors (Data Visualization) */
+  --school-excellent: #34c759;  /* Top-tier schools (PSLE 4-8) */
+  --school-good: #007aff;       /* Good schools (PSLE 9-15) */
+  --school-average: #ff9500;    /* Average schools (PSLE 16-25) */
+  --school-competitive: #ff3b30; /* Competitive schools (PSLE 26-30) */
+
+  /* School Type Indicators */
+  --school-ip: #8b5cf6;         /* Integrated Program */
+  --school-affiliated: #06b6d4; /* Primary school affiliations */
+  --school-boys: #007aff;       /* Boys schools */
+  --school-girls: #af52de;      /* Girls schools (muted purple, not pink) */
+  --school-coed: #34c759;       /* Co-educational schools */
+
+  /* === Typography Scale (SF Pro-inspired) === */
+  --font-size-xs: 0.75rem;     /* 12px */
+  --font-size-sm: 0.875rem;    /* 14px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;    /* 18px */
+  --font-size-xl: 1.25rem;     /* 20px */
+  --font-size-2xl: 1.5rem;     /* 24px */
+  --font-size-3xl: 1.875rem;   /* 30px */
+  --font-size-4xl: 2.25rem;    /* 36px */
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* === Spacing System (8px grid) === */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+
+  /* === Shadow System === */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* === Border Radius System === */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.375rem;  /* 6px */
+  --radius-lg: 0.5rem;    /* 8px */
+  --radius-xl: 0.75rem;   /* 12px */
+  --radius-2xl: 1rem;     /* 16px */
+
+  /* === Transition System === */
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.2s ease-out;
+  --transition-slow: 0.3s ease-out;
 }
 
 @theme inline {
+  /* Tailwind CSS Integration */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Custom Color Classes */
+  --color-gray-50: var(--gray-50);
+  --color-gray-100: var(--gray-100);
+  --color-gray-200: var(--gray-200);
+  --color-gray-300: var(--gray-300);
+  --color-gray-400: var(--gray-400);
+  --color-gray-500: var(--gray-500);
+  --color-gray-600: var(--gray-600);
+  --color-gray-700: var(--gray-700);
+  --color-gray-800: var(--gray-800);
+  --color-gray-900: var(--gray-900);
+
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-green: var(--accent-green);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-red: var(--accent-red);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #000000;
+    --foreground: #f5f5f7;
+    --surface-primary: #1c1c1e;
+    --surface-secondary: #2c2c2e;
+    --surface-elevated: #3a3a3c;
+    --border-color: #38383a;
+
+    /* Adjust grays for dark mode */
+    --gray-50: #1c1c1e;
+    --gray-100: #2c2c2e;
+    --gray-200: #38383a;
+    --gray-300: #48484a;
+    --gray-400: #636366;
+    --gray-500: #8e8e93;
+    --gray-600: #aeaeb2;
+    --gray-700: #c7c7cc;
+    --gray-800: #d1d1d6;
+    --gray-900: #f2f2f7;
   }
 }
 
+/* === Base Styles === */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Typography Utilities === */
+.text-display {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.025em;
+}
+
+.text-headline {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.015em;
+}
+
+.text-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+}
+
+.text-body {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+.text-caption {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--gray-600);
+}
+
+/* === Button Base Styles === */
+.btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  min-height: 44px; /* Touch-friendly */
+}
+
+.btn-primary {
+  background: var(--accent-blue);
+  color: white;
+  padding: var(--space-3) var(--space-6);
+}
+
+.btn-primary:hover {
+  background: #0056cc;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: var(--surface-secondary);
+  color: var(--foreground);
+  border: 1px solid var(--border-color);
+  padding: var(--space-3) var(--space-6);
+}
+
+.btn-secondary:hover {
+  background: var(--gray-100);
+  border-color: var(--gray-300);
+}
+
+/* === Card Base Styles === */
+.card-base {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--gray-300);
+}
+
+/* === Focus States === */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+  border-color: var(--border-focus);
+}
+
+/* === Smooth Scrolling === */
+html {
+  scroll-behavior: smooth;
+}
+
+/* === Selection Styles === */
+::selection {
+  background: rgba(0, 122, 255, 0.2);
+  color: var(--foreground);
+}
+
+/* === Apple-Inspired Component Styles === */
+
+/* Button Variants */
+.btn-primary {
+  background: var(--accent-blue);
+  color: white;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-medium);
+  border: none;
+  transition: all var(--transition-normal);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #0056cc;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: var(--surface-secondary);
+  color: var(--foreground);
+  border: 1px solid var(--border-color);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-normal);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: var(--gray-100);
+  border-color: var(--gray-300);
+}
+
+.btn-tertiary {
+  background: transparent;
+  color: var(--accent-blue);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-medium);
+  border: none;
+  transition: all var(--transition-normal);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-tertiary:hover {
+  background: rgba(0, 122, 255, 0.1);
+}
+
+/* Card Styles */
+.card-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--gray-300);
+}
+
+/* School Result Cards - Always white background with black border */
+.card-school-result {
+  background: #ffffff;           /* Explicit white background */
+  border: 2px solid #1d1d1f;    /* Black border */
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.card-school-result.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: #1d1d1f; /* Keep black border on hover */
+}
+
+/* Badge Styles */
+.badge-base {
+  display: inline-flex;
+  align-items: center;
+  font-weight: var(--font-weight-medium);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  font-size: var(--font-size-xs);
+  padding: var(--space-1) var(--space-3);
+}
+
+.badge-neutral {
+  background: var(--gray-100);
+  color: var(--gray-700);
+  border-color: var(--gray-200);
+}
+
+.badge-blue {
+  background: var(--accent-blue);
+  color: white;
+}
+
+.badge-green {
+  background: var(--accent-green);
+  color: white;
+}
+
+.badge-orange {
+  background: var(--accent-orange);
+  color: white;
+}
+
+.badge-red {
+  background: var(--accent-red);
+  color: white;
+}
+
+/* Input Styles - ACCESSIBILITY FIXED */
+.input-modern {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: #ffffff; /* Explicit white background */
+  color: #1d1d1f; /* Dark text for better contrast */
+  font-size: var(--font-size-base);
+  transition: all var(--transition-normal);
+  min-height: 44px;
+}
+
+.input-modern:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+}
+
+.input-modern::placeholder {
+  color: #6b7280; /* Darker placeholder for better readability */
+}
+
+/* Select dropdown styling */
+.select-modern {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--surface-primary);
+  color: #1d1d1f; /* Dark text for better contrast */
+  font-size: var(--font-size-base);
+  transition: all var(--transition-normal);
+  min-height: 44px;
+}
+
+.select-modern:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+}
+
+/* Table text improvements */
+.table-text {
+  color: #374151; /* Darker text for table content */
+}
+
+.table-header {
+  color: #1d1d1f; /* Dark text for table headers */
+  font-weight: 600;
+}
+
+/* Utility Classes */
+.hover-lift {
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ACCESSIBILITY FIX: WCAG AA Compliant Text Colors */
+.text-primary {
+  color: #1d1d1f; /* Primary headings, important text */
+}
+
+.text-secondary {
+  color: #374151; /* Secondary text, descriptions */
+}
+
+.text-muted {
+  color: #4b5563; /* Subtle text that must remain readable */
+}
+
+.text-placeholder {
+  color: #6b7280; /* Form placeholders, minimal text */
+}
+
+.text-subtle {
+  color: #4b5563; /* Changed from light gray to readable gray */
+}
+
+/* Remove pink color overrides */
+.bg-pink-600,
+.bg-pink-500,
+.bg-pink-700 {
+  background-color: var(--accent-blue) !important;
+}
+
+.text-pink-600,
+.text-pink-500,
+.text-pink-700 {
+  color: var(--accent-blue) !important;
+}
+
+.border-pink-600,
+.border-pink-500,
+.border-pink-700 {
+  border-color: var(--accent-blue) !important;
+}
+
+.hover\:bg-pink-700:hover,
+.hover\:bg-pink-600:hover {
+  background-color: #0056cc !important;
+}
+
+/* === Accent Color Utilities === */
+.text-accent-blue {
+  color: var(--accent-blue);
+}
+
+.text-accent-green {
+  color: var(--accent-green);
+}
+
+.text-accent-orange {
+  color: var(--accent-orange);
+}
+
+.text-accent-red {
+  color: var(--accent-red);
+}
+
+.bg-accent-blue {
+  background-color: var(--accent-blue);
+}
+
+.bg-accent-green {
+  background-color: var(--accent-green);
+}
+
+.bg-accent-orange {
+  background-color: var(--accent-orange);
+}
+
+.bg-accent-red {
+  background-color: var(--accent-red);
+}
+
+.border-accent-blue {
+  border-color: var(--accent-blue);
+}
+
+/* Badge base classes that components might be using */
+.badge-base {
+  display: inline-flex;
+  align-items: center;
+  font-weight: var(--font-weight-medium);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  font-size: var(--font-size-xs);
+  padding: var(--space-1) var(--space-3);
+}
+
+.badge-blue {
+  background: rgba(0, 122, 255, 0.1);
+  color: var(--accent-blue);
+  border-color: rgba(0, 122, 255, 0.2);
+}
+
+/* === Mobile Scroll Utilities === */
+.scrollbar-hide {
+  /* Firefox */
+  scrollbar-width: none;
+  /* Safari and Chrome */
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* === Force Responsive Visibility === */
+@media (max-width: 767px) {
+  .mobile-only {
+    display: block !important;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none !important;
+  }
+  .desktop-only {
+    display: grid !important;
+  }
 }
