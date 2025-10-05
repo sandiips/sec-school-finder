@@ -101,20 +101,20 @@ export default function ComparisonActions({ schools }: ComparisonActionsProps) {
 
       {/* Comparison Summary */}
       <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h4 className="font-medium text-white mb-2">Comparison Summary</h4>
+        <h4 className="font-medium text-white mb-2 compare-summary-title">Comparison Summary</h4>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
           <div>
-            <span className="text-white">Schools compared:</span>
+            <span className="text-white compare-summary-label">Schools compared:</span>
             <span className="ml-1 font-medium">{schools.length}</span>
           </div>
           <div>
-            <span className="text-white">Generated:</span>
+            <span className="text-white compare-summary-label">Generated:</span>
             <span className="ml-1 font-medium">
               {new Date().toLocaleDateString()}
             </span>
           </div>
           <div>
-            <span className="text-white">Data year:</span>
+            <span className="text-white compare-summary-label">Data year:</span>
             <span className="ml-1 font-medium">2024</span>
           </div>
         </div>

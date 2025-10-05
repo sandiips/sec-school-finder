@@ -6,6 +6,7 @@ interface ComparisonRowProps {
   values: (string | { strength: string; sportLists: string[] })[];
   type?: 'text' | 'score' | 'badge' | 'sports_strength';
   getColor?: (value: string) => 'green' | 'orange' | 'red' | 'blue' | 'purple' | 'gray' | 'black' | 'cyan';
+  titleClassName?: string;
 }
 
 export default function ComparisonRow({
@@ -13,7 +14,8 @@ export default function ComparisonRow({
   icon,
   values,
   type = 'text',
-  getColor
+  getColor,
+  titleClassName
 }: ComparisonRowProps) {
   const isSingleResult = values.length === 1;
   const renderValue = (value: string | { strength: string; sportLists: string[] }, index: number) => {
@@ -96,7 +98,7 @@ export default function ComparisonRow({
               {icon}
             </span>
           )}
-          <span className="text-sm font-medium text-black">
+          <span className={`text-sm font-medium text-black ${titleClassName || ''}`}>
             {title}
           </span>
         </div>

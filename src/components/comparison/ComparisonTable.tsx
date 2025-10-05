@@ -108,6 +108,7 @@ export default function ComparisonTable({ schools }: ComparisonTableProps) {
 
             <ComparisonRow
               title="IP Cut-off"
+              titleClassName="compare-cutoff-ip-title"
               icon="🎓"
               values={schools.map(school =>
                 school.cutoffs.ip
@@ -123,6 +124,7 @@ export default function ComparisonTable({ schools }: ComparisonTableProps) {
 
             <ComparisonRow
               title="Affiliated Cut-off"
+              titleClassName="compare-cutoff-affiliated-title"
               icon="🔗"
               values={schools.map(school =>
                 school.cutoffs.affiliated
@@ -138,6 +140,7 @@ export default function ComparisonTable({ schools }: ComparisonTableProps) {
 
             <ComparisonRow
               title="Open PG3"
+              titleClassName="compare-cutoff-open-title"
               icon="🥇"
               values={schools.map(school => {
                 const pg3 = school.cutoffs.open.find(o => o.pg === 3);
@@ -217,7 +220,7 @@ export default function ComparisonTable({ schools }: ComparisonTableProps) {
             <ComparisonRow
               title="Sports with Data"
               icon="📊"
-              values={schools.map(school => `${school.sports.totalSportsWithData} of 19`)}
+              values={schools.map(school => `${school.sports.totalSportsWithData} of 26`)}
               type="text"
             />
 

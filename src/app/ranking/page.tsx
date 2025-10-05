@@ -196,7 +196,7 @@ const PRIMARY_SCHOOLS = [
 
 // ---- Fallbacks; will be replaced by /api/options if available ----
 const FALLBACK_SPORTS = [
-  'Badminton','Basketball','Bowling','Canoeing','Cricket','Floorball','Football','Golf','Hockey','Swimming','Netball','SepakTakraw','Softball','Table Tennis','Tennis','Volleyball','Water Polo','Rugby','Squash'
+  'Badminton','Basketball','Bowling','Canoeing','Cricket','Cross Country','Floorball','Football','Golf','Gymnastics','Hockey','Netball','Rugby','Sailing','SepakTakraw','Shooting','Softball','Squash','Swimming','Table Tennis','Taekwondo','Tennis','Track and Field','Volleyball','Water Polo','Wushu'
 ];
 const FALLBACK_CCAS = [
   'Astronomy','Chemistry Olympiad','Math Olympiad','Robotics','National STEM'];
@@ -721,12 +721,12 @@ setCcaExpl(
     <form onSubmit={onSubmit} className="space-y-6">
       {/* 1. Basic Information */}
       <div className="card-base bg-gray-800 border-gray-700">
-        <h3 className="text-lg font-semibold mb-4 text-white">
+        <h3 className="text-lg font-semibold mb-4 text-white ranking-basic-info-title">
           1. Basic Information
         </h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-white mb-1">
+            <label className="block text-sm font-medium text-white mb-1 ranking-label-psle">
               PSLE Score (4–30)
             </label>
             <input
@@ -746,7 +746,7 @@ setCcaExpl(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white mb-1">
+            <label className="block text-sm font-medium text-white mb-1 ranking-label-gender">
               Gender Preference
             </label>
             <SingleSelect
@@ -758,7 +758,7 @@ setCcaExpl(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white mb-1">
+            <label className="block text-sm font-medium text-white mb-1 ranking-label-postal">
               Home Postal Code (6-digit)
             </label>
             <input
@@ -775,7 +775,7 @@ setCcaExpl(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white mb-1">
+            <label className="block text-sm font-medium text-white mb-1 ranking-label-primary">
               Current Primary School
             </label>
             <SingleSelect
@@ -793,7 +793,7 @@ setCcaExpl(
 
       {/* 2. Tell Us What's Important */}
       <div className="card-base bg-gray-800 border-gray-700">
-        <h3 className="text-lg font-semibold mb-4 text-white">2. Tell Us What's Important</h3>
+        <h3 className="text-lg font-semibold mb-4 text-white ranking-section-title">2. Tell Us What's Important</h3>
 
         {/* Options Loading/Error State */}
         {optionsLoading && (
@@ -959,10 +959,10 @@ setCcaExpl(
             {/* Recommendations Summary - only show when we have results */}
             {hasResults && (
               <div className="bg-gray-900 p-4 mb-6">
-                <h2 className="text-xl font-bold mb-2 text-black">Recommendations Summary</h2>
+                <h2 className="text-xl font-bold mb-2 text-black ranking-results-summary-title">Recommendations Summary</h2>
                 <div className="text-black">
-                  <p className="mb-3">Below {Math.min(schools.length, 6)} school choices provide the best fit based on your preferences.</p>
-                  <ul className="list-disc pl-5 space-y-1">
+                  <p className="mb-3 ranking-results-summary-text">Below {Math.min(schools.length, 6)} school choices provide the best fit based on your preferences.</p>
+                  <ul className="list-disc pl-5 space-y-1 ranking-results-disclaimer">
                     <li>Sports data is based on schools performance at the National School Games over 2022-2024.</li>
                     <li>CCA data is based on publicly available information at organizer or school websites.</li>
                     <li>Culture Summaries are generated from Principal's message and Values reported on school websites.</li>

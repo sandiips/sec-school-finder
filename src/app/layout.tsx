@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "../styles/android-mobile.css";
 import FeedbackWidget from '../components/FeedbackWidget';
+import Footer from '../components/ui/Footer';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 const geistSans = Geist({
@@ -93,13 +95,32 @@ export default function RootLayout({
         <link rel="canonical" href="https://schooladvisor.sg" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="format-detection" content="telephone=no" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        {/* Enhanced favicon configuration for production compatibility */}
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/favicon.ico" />
+        <meta name="msapplication-TileImage" content="/favicon.ico" />
+
+        {/* Android detection script */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              if (typeof window !== 'undefined') {
+                var isAndroid = /Android/i.test(navigator.userAgent);
+                if (isAndroid) {
+                  document.documentElement.classList.add('android-mobile');
+                }
+              }
+            })();
+          `
+        }} />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
         {children}
+        <Footer />
         <FeedbackWidget />
       </body>
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />

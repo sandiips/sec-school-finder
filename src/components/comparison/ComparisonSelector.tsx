@@ -24,7 +24,7 @@ export default function ComparisonSelector({
   return (
     <div className="bg-gray-900 rounded-xl shadow-lg border border-gray-700 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-black">
+        <h2 className="text-xl font-semibold text-black compare-sidebar-title">
           School Selection
         </h2>
         {selectedSchools.length > 0 && (
@@ -103,7 +103,7 @@ export default function ComparisonSelector({
       {/* Search moved to header - now just show a message */}
       {canAddMore && (
         <div className="text-center p-4 bg-gray-800 rounded-lg border border-gray-600">
-          <p className="text-black font-medium">
+          <p className="text-black font-medium compare-sidebar-instruction">
             ✨ Use the search bar above to add more schools to compare
           </p>
         </div>
@@ -112,7 +112,7 @@ export default function ComparisonSelector({
       {/* Selection Status */}
       <div className="mt-4 p-3 bg-gray-800 rounded-lg border border-gray-600">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-black">
+          <span className="text-sm font-medium text-black compare-sidebar-count">
             Schools selected: {selectedSchools.length} of {maxSchools}
           </span>
           {!canAddMore && (

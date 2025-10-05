@@ -67,6 +67,7 @@ export interface SchoolSportResult {
   gender: string; // Boys, Girls, Mixed
   result: string; // Finals, Semifinals, Quarterfinals, etc.
   competition?: string; // National School Games, Zonal, etc.
+  sportCategory?: string | null; // Sport category when available
   code: number;
 }
 
@@ -114,6 +115,7 @@ export interface SportsPerformance {
       gender: string; // Boys, Girls, Mixed
       result: string; // Finals, Semifinals, Quarterfinals, etc.
       competition?: string; // National School Games, Zonal, etc.
+      sportCategory?: string | null; // Sport category when available
     }[];
     years: number[];
   }[];

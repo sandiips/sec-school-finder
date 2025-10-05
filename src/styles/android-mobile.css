@@ -1,0 +1,39 @@
+/* Android Mobile-specific font color overrides */
+
+/* Media query to target Android mobile devices */
+@media only screen and (max-width: 768px) {
+  /* Additional Android detection via user agent would be handled in JS */
+
+  /* School Assistant page - Basic Information section text to BLACK */
+  .android-mobile .ranking-basic-info-title,
+  .android-mobile .ranking-label-psle,
+  .android-mobile .ranking-label-gender,
+  .android-mobile .ranking-label-postal,
+  .android-mobile .ranking-label-primary,
+  .android-mobile .ranking-section-title {
+    color: #000000 !important;
+  }
+
+  /* School Assistant page - Results section text to WHITE */
+  .android-mobile .ranking-results-summary-title,
+  .android-mobile .ranking-results-summary-text,
+  .android-mobile .ranking-results-disclaimer {
+    color: #ffffff !important;
+  }
+
+  /* Compare page - Left sidebar text to WHITE */
+  .android-mobile .compare-sidebar-title,
+  .android-mobile .compare-sidebar-instruction,
+  .android-mobile .compare-sidebar-count {
+    color: #ffffff !important;
+  }
+
+  /* Compare page - Comparison table/cards text to BLACK */
+  .android-mobile .compare-cutoff-ip-title,
+  .android-mobile .compare-cutoff-affiliated-title,
+  .android-mobile .compare-cutoff-open-title,
+  .android-mobile .compare-summary-title,
+  .android-mobile .compare-summary-label {
+    color: #000000 !important;
+  }
+}
