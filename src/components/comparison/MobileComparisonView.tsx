@@ -99,7 +99,7 @@ export default function MobileComparisonView({ schools }: MobileComparisonViewPr
 
         <div className="space-y-3">
           <div>
-            <p className="text-sm font-medium text-white mb-1">🎓 IP cutoff</p>
+            <p className="text-sm font-medium text-white mb-1 compare-cutoff-ip-title">🎓 IP cutoff</p>
             {school.cutoffs.ip ? (
               <Badge
                 variant={getScoreColor(school.cutoffs.ip.min)}
@@ -113,7 +113,7 @@ export default function MobileComparisonView({ schools }: MobileComparisonViewPr
           </div>
 
           <div>
-            <p className="text-sm font-medium text-white mb-1">🔗 Affiliated cutoff</p>
+            <p className="text-sm font-medium text-white mb-1 compare-cutoff-affiliated-title">🔗 Affiliated cutoff</p>
             {school.cutoffs.affiliated ? (
               <Badge
                 variant={getScoreColor(school.cutoffs.affiliated.min)}
@@ -127,7 +127,7 @@ export default function MobileComparisonView({ schools }: MobileComparisonViewPr
           </div>
 
           <div>
-            <p className="text-sm font-medium text-white mb-1">🥇 OPEN PG3</p>
+            <p className="text-sm font-medium text-white mb-1 compare-cutoff-open-title">🥇 OPEN PG3</p>
             {(() => {
               const pg3 = school.cutoffs.open.find(o => o.pg === 3);
               return pg3 && pg3.min && pg3.max ? (
@@ -353,7 +353,7 @@ export default function MobileComparisonView({ schools }: MobileComparisonViewPr
               {activeSchoolIndex + 1}
             </div>
             <div className="flex-1">
-              <h2 className="font-bold text-gray-900 text-lg leading-tight">
+              <h2 className="font-bold text-gray-900 text-lg leading-tight compare-school-name">
                 {activeSchool.name}
               </h2>
               <div className="flex space-x-2 mt-1">
@@ -503,7 +503,7 @@ export default function MobileComparisonView({ schools }: MobileComparisonViewPr
                     {index + 1}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 text-sm">{school.name}</p>
+                    <p className="font-medium text-gray-900 text-sm compare-school-name">{school.name}</p>
                     <p className="text-xs text-gray-500">
                       {school.gender} • {school.hasIP ? 'IP' : 'Regular'}
                     </p>

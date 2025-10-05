@@ -56,7 +56,7 @@ export default function ComparisonTable({ schools }: ComparisonTableProps) {
                       <div className="w-8 h-8 bg-accent-blue text-white rounded-full flex items-center justify-center font-bold text-sm mr-2">
                         {index + 1}
                       </div>
-                      <h3 className="font-bold text-black text-sm leading-tight">
+                      <h3 className="font-bold text-black text-sm leading-tight compare-school-name">
                         {school.name}
                       </h3>
                     </div>
