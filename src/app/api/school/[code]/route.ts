@@ -233,9 +233,10 @@ async function processSportsData(sportsScores: any[], sportsResults: any[]): Pro
 
   // Get all available sports for comparison (from /api/options)
   const ALL_SPORTS = [
-    'Badminton', 'Basketball', 'Bowling', 'Canoeing', 'Cricket', 'Floorball',
-    'Football', 'Golf', 'Hockey', 'Swimming', 'Netball', 'SepakTakraw',
-    'Softball', 'Table Tennis', 'Tennis', 'Volleyball', 'Water Polo', 'Rugby', 'Squash'
+    'Badminton', 'Basketball', 'Bowling', 'Canoeing', 'Cricket', 'Cross Country', 'Floorball',
+    'Football', 'Golf', 'Gymnastics', 'Hockey', 'Netball', 'Rugby', 'Sailing', 'SepakTakraw',
+    'Shooting', 'Softball', 'Squash', 'Swimming', 'Table Tennis', 'Taekwondo', 'Tennis',
+    'Track and Field', 'Volleyball', 'Water Polo', 'Wushu'
   ];
 
   const sportsWithoutData = ALL_SPORTS.filter(sport => !sportsWithData.includes(sport));
@@ -316,7 +317,8 @@ function parseYearlyResults(results: any[]): any[] {
     division: result.division || 'Open',
     gender: result.gender || 'Mixed',
     result: result.stage || 'Participation',
-    competition: result.level || 'School Competition'
+    competition: result.level || 'School Competition',
+    sportCategory: result.sport_category || null // Add sport_category when available
   }));
 }
 

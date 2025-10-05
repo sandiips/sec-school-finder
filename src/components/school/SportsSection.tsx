@@ -164,6 +164,9 @@ export default function SportsSection({ school }: SportsSectionProps) {
                             <div key={idx} className="text-xs text-gray-600">
                               <span className="text-gray-600">{result.result}</span>
                               <span className="text-gray-600"> • {result.year} • {result.division} Div • {result.gender}</span>
+                              {result.sportCategory && (
+                                <span className="text-gray-500"> • {result.sportCategory}</span>
+                              )}
                             </div>
                           ))}
                           {sport.detailedResults.length > 3 && (
@@ -240,13 +243,13 @@ export default function SportsSection({ school }: SportsSectionProps) {
               <div className="flex justify-between items-center">
                 <span className="text-black">Total available sports:</span>
                 <Badge variant="gray" size="small">
-                  19
+                  26
                 </Badge>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
                 <div
                   className="bg-accent-blue h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${(sports.totalSportsWithData / 19) * 100}%` }}
+                  style={{ width: `${(sports.totalSportsWithData / 26) * 100}%` }}
                 ></div>
               </div>
             </div>

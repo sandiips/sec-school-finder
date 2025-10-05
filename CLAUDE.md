@@ -147,7 +147,7 @@ The `explain` API performs sophisticated analysis:
 - Scoring system: Higher scores = better performance (opposite of PSLE)
 - Calculates strength ratings (Very Strong/Strong/Fair) based on score thresholds
 - Generates natural language explanations with sport-specific achievements
-- 19 available sports defined in `/api/options` route
+- 26 available sports defined in `/api/options` route
 - Handles missing data with "Sports data not available" messaging
 
 #### Cut-off Score Logic

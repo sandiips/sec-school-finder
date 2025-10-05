@@ -214,7 +214,7 @@ export default function MobileComparisonView({ schools }: MobileComparisonViewPr
 
             <div>
               <p className="text-sm font-medium text-black mb-1">📊 Sports with Data</p>
-              <p className="text-sm text-gray-600">{school.sports.totalSportsWithData} of 19</p>
+              <p className="text-sm text-gray-600">{school.sports.totalSportsWithData} of 26</p>
             </div>
           </div>
         )}
