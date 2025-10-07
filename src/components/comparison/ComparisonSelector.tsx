@@ -51,7 +51,7 @@ export default function ComparisonSelector({
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-black text-sm leading-tight mb-2 pr-2">
+                <h3 className="font-medium text-black text-sm leading-tight mb-2 pr-2 compare-selected-school-name">
                   {school.name}
                 </h3>
                 <div className="flex flex-wrap gap-1">

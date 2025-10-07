@@ -281,3 +281,66 @@ git commit --amend
 ```
 
 Remember: Always create backups and test thoroughly before pushing to main!
+
+---
+
+## Recent Operations Log
+
+### 2025-10-05: Sports Expansion and Android Font Fixes
+
+#### ✅ Successful Operation: Oct5-update Branch Merge
+**Branch:** `Oct5-update` → `main` (Commit: `ee52aa3`)
+
+**Changes Applied:**
+- Expanded sports options from 19 to 26 available sports
+- Added new sports: Cross Country, Gymnastics, Sailing, Shooting, Taekwondo, Track and Field, Wushu
+- Updated all component references and calculations
+- Added PWA manifest.json file
+- Created missing Footer component for layout compatibility
+- Updated CLAUDE.md documentation
+
+**Process Used:**
+1. ✅ Created backup branch: `Oct5-update-backup-20251005`
+2. ✅ Fixed missing Footer component issue during build
+3. ✅ Production build verification passed
+4. ✅ Synced with remote main branch (successful rebase)
+5. ✅ Fast-forward merge to main
+6. ✅ Successfully pushed to remote
+
+#### ⚠️ Reverted Operation: Android Compare Font Fixes
+**Branch:** `feat/android-compare-font-fixes` → `main` (Commit: `810e26c` - REVERTED)
+
+**Changes Applied (Later Reverted):**
+- Added Android-specific CSS for white school names in Compare page
+- Added Android-specific CSS for black cut-off labels ("IP Cut-off", "Affiliated Cut-off", "Open PG3")
+- Updated ComparisonSelector, ComparisonTable, and MobileComparisonView components
+- Modified `src/styles/android-mobile.css` with new CSS classes
+
+**Revert Process:**
+```bash
+# Identified problematic commit
+git log --oneline -5
+
+# Hard reset to previous good commit
+git reset --hard ee52aa3
+
+# Force push to remove changes from remote
+git push --force-with-lease origin main
+```
+
+**Lessons Learned:**
+- Always test Android-specific changes thoroughly before merging
+- Consider using feature flags for experimental UI changes
+- Keep feature branches available for future reference after revert
+
+### Current State (as of 2025-10-05)
+- **Main Branch:** `ee52aa3` - "feat: expand sports options from 19 to 26 and add Footer component"
+- **Available Feature Branches:**
+  - `feat/android-compare-font-fixes` (contains reverted changes)
+  - Various backup branches from previous operations
+- **Status:** Production build passing, repository clean
+
+### Recommended Next Steps
+1. If Android font fixes are needed again, create fresh feature branch
+2. Consider more thorough testing procedures for Android-specific changes
+3. Implement feature flag system for experimental UI modifications

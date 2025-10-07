@@ -105,6 +105,50 @@ const faqData: FAQItem[] = [
     question: 'Why do some schools show "data not available"?',
     answer: 'Some schools may not have participated in certain sports or CCA competitions, or their results weren\'t recorded in our tracking period (2022-2024). This doesn\'t mean the school is weak in those areas - they might excel in other activities not measured by our system.',
     category: 'Technical'
+  },
+
+  // Additional PSLE AL Score Questions for SEO
+  {
+    id: 'what-is-al-score',
+    question: 'What is an AL Score and how is it different from T-score?',
+    answer: 'AL (Achievement Level) Score is the current PSLE scoring system that replaced T-scores in 2021. AL Scores range from 4 to 30, where lower scores are better. Unlike T-scores which compared students against each other, AL Scores measure absolute achievement. AL 1 = 90+ marks, AL 2 = 85-89 marks, etc. Your total AL Score is the sum of your 4 subject ALs.',
+    category: 'PSLE'
+  },
+  {
+    id: 'al-score-meaning',
+    question: 'What does my AL Score mean for secondary school admission?',
+    answer: 'Your AL Score determines which secondary schools you can qualify for. Schools with lower cut-off scores are more academically competitive. For example, top schools may have cut-offs of 4-8, while others may accept scores up to 20-30. Having a lower AL Score gives you more school options.',
+    category: 'PSLE'
+  },
+  {
+    id: 'al-score-psle-2025',
+    question: 'How do AL Scores work for 2025 secondary school posting?',
+    answer: 'For 2025 secondary school admission, your AL Score will be compared against each school\'s cut-off. Cut-offs vary by admission type: IP programs (lowest cut-offs), Affiliated admission (slightly higher), and Open admission (highest). Check our school finder tool to see which schools match your AL Score.',
+    category: 'PSLE'
+  },
+  {
+    id: 'secondary-school-psle-score',
+    question: 'Which secondary schools can I get into with my PSLE Score?',
+    answer: 'The secondary schools you can access depend on your total PSLE AL Score and the school\'s cut-off scores. Use our distance-based search tool by entering your AL Score and location to see nearby schools you qualify for. Consider factors beyond just cut-offs like sports programs, CCAs, and school culture.',
+    category: 'School Selection'
+  },
+  {
+    id: 'psle-cutoff-2025',
+    question: 'What are the 2025 PSLE cut-off scores for secondary schools?',
+    answer: 'Cut-off scores for 2025 are based on 2024 admission data and may vary slightly. Top schools typically have cut-offs of 4-10, while others range from 11-30. Use our comparison tool to see cut-offs for IP, Affiliated, and Open admission across all posting groups (PG1-PG3).',
+    category: 'PSLE'
+  },
+  {
+    id: 'secondary-school-comparison',
+    question: 'How should I compare secondary schools beyond PSLE cut-offs?',
+    answer: 'While PSLE cut-offs indicate academic selectivity, also consider: sports and CCA programs your child enjoys, school culture and values, distance from home, special programs like IP or specialized subjects, and peer environment. Our School Assistant tool helps you evaluate all these factors together.',
+    category: 'School Selection'
+  },
+  {
+    id: 'school-affiliation-advantage',
+    question: 'How much advantage do primary school affiliations give for AL Scores?',
+    answer: 'Primary school affiliations typically provide a 2-4 point advantage in AL Score cut-offs. For example, if a school\'s open cut-off is 8, affiliated students might gain entry with scores up to 10-12. This advantage applies during Phase 2A1 of the posting process, giving affiliated students priority before open admission.',
+    category: 'School Types'
   }
 ];
 
@@ -156,11 +200,11 @@ export default function FAQPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-display text-gray-900 mb-4">
-            Frequently Asked Questions
+            PSLE AL Score & Secondary School FAQ
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Everything you need to know about Singapore's secondary school system,
-            PSLE scoring, and using School Advisor SG to find the right school for your child.
+            Everything you need to know about PSLE AL Scores, secondary school cut-offs, and finding the right school
+            using your child's AL Score. Updated for 2025 admissions.
           </p>
         </div>
 
@@ -300,24 +344,30 @@ export default function FAQPage() {
         <div className="mt-12 text-center">
           <div className="card-base max-w-2xl mx-auto">
             <h3 className="text-title text-gray-900 mb-4">
-              Still have questions?
+              Ready to Find Schools with Your AL Score?
             </h3>
             <p className="text-gray-600 mb-6">
-              Can't find what you're looking for? Our platform is designed to help Singapore parents
-              navigate the secondary school selection process with confidence.
+              Use our tools to find secondary schools that match your PSLE AL Score. Compare cut-offs, sports programs,
+              and school culture to make the best choice for your child's future.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="/"
                 className="btn-base btn-primary"
               >
-                Start School Search
+                Find Schools by AL Score →
               </a>
               <a
                 href="/ranking"
                 className="btn-base btn-secondary"
               >
-                Try School Assistant
+                Advanced School Matching →
+              </a>
+              <a
+                href="/compare"
+                className="btn-base btn-outline"
+              >
+                Compare Schools →
               </a>
             </div>
           </div>

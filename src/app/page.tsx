@@ -212,13 +212,13 @@ export default function HomePage() {
   {/* Give BOTH the text and the form the same width */}
   <div className="text-white w-full max-w-[48rem] md:max-w-[35rem]"> {/* ≈768–832px */}
     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight drop-shadow">
-      <span className="block">Search beyond</span>
-      <span className="block">PSLE scores</span>
+      <span className="block">Go Beyond </span>
+      <span className="block">PSLE AL Scores</span>
     </h1>
       <p className="mt-4 sm:mt-6 text-white/90 text-lg">
-       <b> Sports | CCAs | Culture insights </b> </p>
+       <b> Sports & CCAs + AL Scores | Compare secondary schools </b> </p>
       <p className="mt-4 sm:mt-6 text-white/90 text-lg">
-        Explore School Assistant & Compare Tools now!
+        Singapore's comprehensive secondary school finder with 2024 data
       </p>
 
             {/* Search panel – left aligned under subtitle */}
@@ -326,6 +326,45 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
+
+            {/* Educational Section - Understanding PSLE AL Scores */}
+            <div className="mt-12 bg-gray-50 rounded-2xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-6">Understanding PSLE AL Scores</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">What is an AL Score?</h3>
+                  <p className="text-white mb-4">
+                    Achievement Level (AL) scores range from 4 to 30, where <strong>lower scores are better</strong>.
+                    Your PSLE AL score determines which secondary schools you can qualify for based on their cut-off scores.
+                  </p>
+                  <p className="text-white">
+                    AL scores replaced the old T-score system to reduce excessive competition and provide a clearer
+                    indication of your child's academic achievement level.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3">How Cut-offs Work in 2025</h3>
+                  <p className="text-white mb-4">
+                    Each secondary school sets cut-off scores based on the last student admitted. Schools with
+                    <strong> lower cut-off scores are more academically competitive</strong>.
+                  </p>
+                  <p className="text-white">
+                    Cut-offs vary by posting group (PG1-PG3), Integrated Program (IP) tracks, and whether
+                    you have primary school affiliations.
+                  </p>
+                </div>
+              </div>
+
+              {/* CTA to School Assistant */}
+              <div className="mt-8 text-center">
+                <Link href="/ranking" className="btn-primary inline-block">
+                  Try Our Advanced School Ranking Assistant →
+                </Link>
+                <p className="text-sm text-gray-600 mt-2">
+                  Get personalized recommendations beyond just PSLE scores - includes sports, CCAs, and culture matching
+                </p>
+              </div>
+            </div>
           </div>
         </section>
       )}
@@ -372,6 +411,48 @@ export default function HomePage() {
         selectedSchools={selectedSchools}
         onClearAll={clearAllComparisons}
         maxSchools={4}
+      />
+
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "School Advisor SG - PSLE AL Score Secondary School Finder",
+            "description": "Find the best secondary school in Singapore using your PSLE AL Score. Compare cut-offs, sports, CCAs, and culture fit for informed school selection.",
+            "url": "https://schooladvisor.sg",
+            "applicationCategory": "EducationApplication",
+            "operatingSystem": "Web",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "SGD"
+            },
+            "creator": {
+              "@type": "Organization",
+              "name": "School Advisor SG"
+            },
+            "audience": {
+              "@type": "Audience",
+              "audienceType": "Parents and students preparing for secondary school admission in Singapore"
+            },
+            "featureList": [
+              "PSLE AL Score based school search",
+              "Secondary school cut-off comparison",
+              "Sports and CCA performance analysis",
+              "School culture matching",
+              "Distance-based school finder",
+              "Primary school affiliation guidance"
+            ],
+            "about": {
+              "@type": "Thing",
+              "name": "Singapore Secondary School Selection",
+              "description": "Comprehensive tool for finding and comparing Singapore secondary schools using PSLE AL scores, with additional insights on sports, CCAs, and school culture."
+            }
+          })
+        }}
       />
     </div>
   );

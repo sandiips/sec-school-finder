@@ -17,9 +17,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "School Advisor SG - Find Your Ideal Secondary School",
-  description: "Compare and choose the best secondary school in Singapore based on your preferences. Explore CCAs, Sports, Culture fit, Affiliations and more to make an informed decision.",
+  title: "School Advisor SG - PSLE AL Score & Secondary School Finder",
+  description: "Find the best secondary school in Singapore using your PSLE AL Score. Compare cut-offs, sports, CCAs, and culture fit. Expert guidance for informed school selection decisions.",
   keywords: [
+    "psle score",
+    "al score",
+    "psle al score",
+    "secondary school psle score",
+    "al score psle",
+    "secondary school",
     "Singapore secondary schools",
     "PSLE cut-off scores",
     "school comparison",
@@ -50,8 +56,8 @@ export const metadata: Metadata = {
     locale: 'en_SG',
     url: 'https://schooladvisor.sg',
     siteName: 'School Advisor SG',
-    title: 'School Advisor SG - Find Your Ideal Secondary School',
-    description: 'Compare and choose the best secondary school in Singapore based on your preferences. Explore CCAs, Sports, Culture fit, Affiliations and more.',
+    title: 'School Advisor SG - PSLE AL Score & Secondary School Finder',
+    description: 'Find the best secondary school in Singapore using your PSLE AL Score. Compare cut-offs, sports, CCAs, and culture fit for informed school selection.',
     images: [
       {
         url: '/hero.jpg',
@@ -63,8 +69,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'School Advisor SG - Find Your Ideal Secondary School',
-    description: 'Compare and choose the best secondary school in Singapore based on your preferences.',
+    title: 'School Advisor SG - PSLE AL Score & Secondary School Finder',
+    description: 'Find the best secondary school in Singapore using your PSLE AL Score. Compare cut-offs, sports, CCAs, and culture fit.',
     images: ['/hero.jpg'],
   },
   icons: {

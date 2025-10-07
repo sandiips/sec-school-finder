@@ -920,9 +920,8 @@ setCcaExpl(
       {/* ===== Hero section with light background ===== */}
       <section className="bg-white text-black">
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-3xl font-bold text-black">School Assistant</h1>
-          <p className="mt-2 text-black">Find your perfect Top 6 secondary schools with AI-powered insights</p>
-          <span className="mt-3 inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Premium Feature (In Beta)</span>
+          <h1 className="text-3xl font-bold text-black">Find Secondary Schools with more than PSLE AL Score</h1>
+          <p className="mt-2 text-black">Get personalized Top 6 secondary school recommendations based on your AL Score, preferences, and location</p>
         </div>
       </section>
 
