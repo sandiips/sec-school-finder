@@ -11,10 +11,18 @@
   "dependencies": {
     "@next/third-parties": "^15.5.3",
     "@supabase/supabase-js": "^2.52.0",
+    "ai": "^5.0.68",
+    "date-fns": "^4.1.0",
+    "langsmith": "^0.3.74",
+    "nanoid": "^5.1.6",
     "next": "15.4.2",
+    "node-cache": "^5.1.2",
+    "openai": "^6.3.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "swr": "^2.3.4"
+    "react-markdown": "^10.1.0",
+    "swr": "^2.3.4",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

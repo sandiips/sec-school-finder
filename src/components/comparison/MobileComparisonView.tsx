@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { SchoolProfile } from '@/types/school';
 import Badge from '@/components/ui/Badge';
 import { useSwipeGesture } from '@/hooks/useSwipeGesture';
+import Link from 'next/link';
 
 interface MobileComparisonViewProps {
   schools: SchoolProfile[];
@@ -348,7 +349,7 @@ export default function MobileComparisonView({ schools }: MobileComparisonViewPr
       >
         {/* School Header */}
         <div className="bg-gray-50 p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 mb-3">
             <div className="w-10 h-10 bg-accent-blue text-white rounded-full flex items-center justify-center font-bold">
               {activeSchoolIndex + 1}
             </div>
@@ -367,6 +368,16 @@ export default function MobileComparisonView({ schools }: MobileComparisonViewPr
               </div>
             </div>
           </div>
+          <Link
+            href={`/school/${activeSchool.code}`}
+            className="flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 rounded-lg transition-colors duration-200 touch-manipulation min-h-[44px]"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            View Full Profile
+          </Link>
         </div>
 
         {/* Expandable Sections */}

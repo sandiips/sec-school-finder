@@ -63,13 +63,13 @@ export default function Navigation() {
             Home
           </Link>
           <Link
-            href="/ranking"
+            href="/ask-sai"
             className={`${navLinkBase} ${
-              isActive('/ranking') ? navLinkActive : navLinkInactive
+              isActive('/ask-sai') ? navLinkActive : navLinkInactive
             }`}
-            onClick={() => handleNavClick('/ranking', 'School Assistant')}
+            onClick={() => handleNavClick('/ask-sai', 'Ask SAI')}
           >
-            School Assistant
+            Ask SAI
           </Link>
           <Link
             href="/compare"
@@ -79,6 +79,15 @@ export default function Navigation() {
             onClick={() => handleNavClick('/compare', 'Compare')}
           >
             Compare
+          </Link>
+          <Link
+            href="/ranking"
+            className={`${navLinkBase} ${
+              isActive('/ranking') ? navLinkActive : navLinkInactive
+            }`}
+            onClick={() => handleNavClick('/ranking', 'School Assistant')}
+          >
+            School Assistant
           </Link>
           <Link
             href="/faq"
@@ -103,13 +112,13 @@ export default function Navigation() {
             Home
           </Link>
           <Link
-            href="/ranking"
+            href="/ask-sai"
             className={`${mobileNavLinkBase} ${
-              isActive('/ranking') ? mobileNavLinkActive : mobileNavLinkInactive
+              isActive('/ask-sai') ? mobileNavLinkActive : mobileNavLinkInactive
             }`}
-            onClick={() => handleNavClick('/ranking', 'School Assistant', true)}
+            onClick={() => handleNavClick('/ask-sai', 'Ask SAI', true)}
           >
-            Assistant
+            SAI
           </Link>
           <Link
             href="/compare"
@@ -119,6 +128,15 @@ export default function Navigation() {
             onClick={() => handleNavClick('/compare', 'Compare', true)}
           >
             Compare
+          </Link>
+          <Link
+            href="/ranking"
+            className={`${mobileNavLinkBase} ${
+              isActive('/ranking') ? mobileNavLinkActive : mobileNavLinkInactive
+            }`}
+            onClick={() => handleNavClick('/ranking', 'School Assistant', true)}
+          >
+            Assistant
           </Link>
           <Link
             href="/faq"
