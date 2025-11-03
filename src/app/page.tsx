@@ -329,26 +329,26 @@ export default function HomePage() {
 
             {/* Educational Section - Understanding PSLE AL Scores */}
             <div className="mt-12 bg-gray-50 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-white mb-6">Understanding PSLE AL Scores</h2>
+              <h2 className="text-2xl font-bold text-primary mb-6">Understanding PSLE AL Scores</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">What is an AL Score?</h3>
-                  <p className="text-white mb-4">
+                  <h3 className="text-lg font-semibold text-primary mb-3">What is an AL Score?</h3>
+                  <p className="text-primary mb-4">
                     Achievement Level (AL) scores range from 4 to 30, where <strong>lower scores are better</strong>.
                     Your PSLE AL score determines which secondary schools you can qualify for based on their cut-off scores.
                   </p>
-                  <p className="text-white">
+                  <p className="text-primary">
                     AL scores replaced the old T-score system to reduce excessive competition and provide a clearer
                     indication of your child's academic achievement level.
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">How Cut-offs Work in 2025</h3>
-                  <p className="text-white mb-4">
+                  <h3 className="text-lg font-semibold text-primary mb-3">How Cut-offs Work in 2025</h3>
+                  <p className="text-primary mb-4">
                     Each secondary school sets cut-off scores based on the last student admitted. Schools with
                     <strong> lower cut-off scores are more academically competitive</strong>.
                   </p>
-                  <p className="text-white">
+                  <p className="text-primary">
                     Cut-offs vary by posting group (PG1-PG3), Integrated Program (IP) tracks, and whether
                     you have primary school affiliations.
                   </p>
