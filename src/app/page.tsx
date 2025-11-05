@@ -328,7 +328,7 @@ export default function HomePage() {
             </div>
 
             {/* Educational Section - Understanding PSLE AL Scores */}
-            <div className="mt-12 bg-gray-50 rounded-2xl p-8">
+            <div className="mt-12 bg-white rounded-2xl p-8">
               <h2 className="text-2xl font-bold text-primary mb-6">Understanding PSLE AL Scores</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
