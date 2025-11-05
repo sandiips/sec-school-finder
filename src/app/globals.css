@@ -484,13 +484,7 @@ html {
 }
 
 .text-secondary {
-  color: #1d1d1f; /* Secondary text, descriptions - black for readability */
-}
-
-@media (prefers-color-scheme: dark) {
-  .text-secondary {
-    color: #aeaeb2; /* Dark mode: lighter secondary text */
-  }
+  color: #000000 !important; /* Secondary text - always black for web visibility */
 }
 
 .text-muted {
