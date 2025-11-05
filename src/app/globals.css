@@ -487,6 +487,13 @@ html {
   color: #374151; /* Secondary text, descriptions */
 }
 
+/* Web-only (desktop) override: force black text for proper contrast */
+@media (min-width: 768px) {
+  .text-secondary {
+    color: #1d1d1f; /* Desktop: black text for proper contrast */
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .text-secondary {
     color: #aeaeb2; /* Dark mode: lighter secondary text */
