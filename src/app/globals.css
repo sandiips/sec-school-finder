@@ -474,13 +474,7 @@ html {
 
 /* ACCESSIBILITY FIX: WCAG AA Compliant Text Colors */
 .text-primary {
-  color: #1d1d1f; /* Light mode: primary headings, important text */
-}
-
-@media (prefers-color-scheme: dark) {
-  .text-primary {
-    color: #f5f5f7; /* Dark mode: light text for visibility */
-  }
+  color: #000000 !important; /* Primary headings - always black for web visibility */
 }
 
 .text-secondary {
