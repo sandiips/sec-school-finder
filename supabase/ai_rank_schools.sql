@@ -173,7 +173,8 @@ BEGIN
       coalesce(ce.a_max, ce.na_max) as cutoff_max
     from gendered b
     join cop_expanded ce on ce.code = b.code and ce.posting_group is null
-    where user_score between coalesce(ce.a_min, ce.na_min) and coalesce(ce.a_max, ce.na_max)
+    where coalesce(ce.a_max, ce.na_max) IS NOT NULL
+  and user_score <= coalesce(ce.a_max, ce.na_max)
   ),
 
   pg_aff_opt as (
@@ -185,8 +186,8 @@ BEGIN
     from gendered b
     join cop_expanded ce on ce.code = b.code and ce.posting_group in (1,2,3)
     join user_aff ua     on ua.code = b.code and ua.is_affiliated = true
-    where ce.a_min is not null and ce.a_max is not null
-      and user_score between ce.a_min and ce.a_max
+    where ce.a_max is not null
+  and user_score <= ce.a_max
   ),
 
   pg_open_opt as (
@@ -197,8 +198,8 @@ BEGIN
       ce.na_max as cutoff_max
     from gendered b
     join cop_expanded ce on ce.code = b.code and ce.posting_group in (1,2,3)
-    where ce.na_min is not null and ce.na_max is not null
-      and user_score between ce.na_min and ce.na_max
+    where ce.na_max is not null
+  and user_score <= ce.na_max
       and not exists (
         select 1
         from pg_aff_opt pa

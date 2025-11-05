@@ -1,4 +1,3 @@
-
 /* =========================
    Base school rows
    ========================= */
@@ -62,23 +61,30 @@ user_aff as (
    Expand COP ranges for latest available year per school
    posting_group: NULL => IP, 3 => PG3, 2 => PG2, 1 => PG1
    ========================= */
+/* =========================
+   Expand COP ranges for latest available year per school
+   posting_group: NULL => IP, 3 => PG3, 2 => PG2, 1 => PG1
+   ========================= */
 cop_expanded as (
   select
     b.code,
-    (x.elem->>'year')::int as year,
-    nullif((x.elem->>'posting_group'),'')::int as posting_group,  -- NULL for IP
-    (x.elem->>'nonaffiliated_min_score')::int as na_min,
-    (x.elem->>'nonaffiliated_max_score')::int as na_max,
-    (x.elem->>'affiliated_min_score')::int   as a_min,
-    (x.elem->>'affiliated_max_score')::int   as a_max
+    ly.latest_year as year,
+    nullif((y->>'posting_group'),'')::int as posting_group,  -- NULL for IP
+    (y->>'nonaffiliated_min_score')::int as na_min,
+    (y->>'nonaffiliated_max_score')::int as na_max,
+    (y->>'affiliated_min_score')::int   as a_min,
+    (y->>'affiliated_max_score')::int   as a_max
   from base b
+  -- find latest year inside the array
   cross join lateral (
-    select y as elem
-    from jsonb_array_elements(b.cop_ranges) y
-    order by (y->>'year')::int desc
-    limit 1
-  ) as x
+    select max((e->>'year')::int) as latest_year
+    from jsonb_array_elements(b.cop_ranges) e
+  ) ly
+  -- expand only rows for that latest year
+  cross join lateral jsonb_array_elements(b.cop_ranges) y
+  where (y->>'year')::int = ly.latest_year
 ),
+
 
 /* =========================
    OPTIONS per school
@@ -91,7 +97,8 @@ ip_opt as (
     coalesce(ce.a_max, ce.na_max) as cutoff_max
   from gendered b
   join cop_expanded ce on ce.code = b.code and ce.posting_group is null
-  where user_score between coalesce(ce.a_min, ce.na_min) and coalesce(ce.a_max, ce.na_max)
+  where coalesce(ce.a_max, ce.na_max) IS NOT NULL
+    and user_score <= coalesce(ce.a_max, ce.na_max)
 ),
 
 pg_aff_opt as (
@@ -104,8 +111,8 @@ pg_aff_opt as (
   from gendered b
   join cop_expanded ce on ce.code = b.code and ce.posting_group in (1,2,3)
   join user_aff ua     on ua.code = b.code and ua.is_affiliated = true
-  where ce.a_min is not null and ce.a_max is not null
-    and user_score between ce.a_min and ce.a_max
+  where ce.a_max is not null
+    and user_score <= ce.a_max
 ),
 
 pg_open_opt as (
@@ -116,9 +123,9 @@ pg_open_opt as (
     ce.posting_group,
     ce.na_max as cutoff_max
   from gendered b
-  join cop_expanded ce on ce.code = b.code and ce.posting_group in (1,2,3)
-  where ce.na_min is not null and ce.na_max is not null
-    and user_score between ce.na_min and ce.na_max
+   join cop_expanded ce on ce.code = b.code and ce.posting_group in (1,2,3)
+  where ce.na_max is not null
+    and user_score <= ce.na_max
     and not exists (
       select 1
       from pg_aff_opt pa
@@ -175,6 +182,20 @@ ranked as (
 ),
 
 /* =========================
+   Pick the single best option per school
+   (uses your sort_row_priority fallback, then prefers larger cutoff_max if tied)
+   ========================= */
+best as (
+  select distinct on (r.code)
+    r.*
+  from ranked r
+  order by
+    r.code,
+    r.sort_row_priority asc,   -- your fallback (IP/PG3/PG2/PG1, aff vs open)
+    r.cutoff_max desc          -- if two rows tie, keep the one with the higher max cutoff
+),
+
+/* =========================
    Attach display fields + distance
    ========================= */
 joined as (
@@ -188,7 +209,7 @@ joined as (
     r.is_affiliated,
     r.sort_row_priority,
     r.cutoff_max as cop_max_score
-  from ranked r
+  from best r
   join base b on b.code = r.code
   join dist d on d.code = r.code
 ),
