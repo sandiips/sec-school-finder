@@ -1,9 +1,16 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { sendGAEvent } from '@next/third-parties/google';
+import MobileHeaderFeedback from './MobileHeaderFeedback';
 
-export default function Navigation() {
+interface NavigationProps {
+  onMobileFeedbackClick?: () => void;
+}
+
+export default function Navigation({ onMobileFeedbackClick }: NavigationProps) {
   const pathname = usePathname();
 
   const isActive = (path: string) => {
@@ -102,6 +109,10 @@ export default function Navigation() {
 
         {/* Mobile Navigation - Hidden (moved to MobileBottomNav) */}
 
+        {/* Mobile Feedback Button */}
+        {onMobileFeedbackClick && (
+          <MobileHeaderFeedback onFeedbackClick={onMobileFeedbackClick} />
+        )}
       </div>
     </header>
   );

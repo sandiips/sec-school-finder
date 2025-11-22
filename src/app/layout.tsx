@@ -5,6 +5,7 @@ import "../styles/android-mobile.css";
 import FeedbackWidget from '../components/FeedbackWidget';
 import Footer from '../components/ui/Footer';
 import MobileBottomNav from '../components/ui/MobileBottomNav';
+import LayoutWrapper from './LayoutWrapper';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 const geistSans = Geist({
@@ -126,7 +127,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen pb-24 max-sm:pb-24 sm:pb-0`}
       >
-        {children}
+        <LayoutWrapper>
+          {children}
+        </LayoutWrapper>
         <MobileBottomNav />
         <Footer />
         <FeedbackWidget />

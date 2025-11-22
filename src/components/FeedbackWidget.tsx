@@ -64,14 +64,13 @@ export default function FeedbackWidget() {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button - Desktop only */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Give feedback"
-        className="fixed bottom-4 right-4 z-40 rounded-full w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-3 bg-accent-blue text-white shadow-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm sm:text-base flex items-center justify-center"
+        className="hidden sm:flex fixed bottom-4 right-4 z-40 rounded-full w-auto h-auto px-4 py-3 bg-accent-blue text-white shadow-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm items-center justify-center"
       >
-        <span className="hidden sm:inline">Feedback</span>
-        <span className="sm:hidden text-lg">💬</span>
+        <span>Feedback</span>
       </button>
 
       {/* Toast */}
