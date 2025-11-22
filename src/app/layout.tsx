@@ -110,20 +110,28 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/favicon.ico" />
         <meta name="msapplication-TileImage" content="/favicon.ico" />
 
-        {/* Android detection script */}
+        {/* Android detection script - runs immediately to detect device */}
         <script dangerouslySetInnerHTML={{
           __html: `
             (function() {
-              if (typeof window !== 'undefined') {
+              try {
                 var ua = navigator.userAgent;
-                // Enhanced Android detection - checks for Android in user agent
                 var isAndroid = /Android/i.test(ua);
+
+                // Store result globally for debugging
+                window.__schoolAdvisorAndroidDetected = isAndroid;
+
                 if (isAndroid) {
+                  // Add class to body for CSS styling
                   document.body.classList.add('android-mobile');
-                  console.log('[School Advisor] Android device detected, android-mobile class applied');
+                  console.log('[School Advisor] ✓ Android device detected, android-mobile class applied');
+                  console.log('[School Advisor] User Agent: ' + ua);
                 } else {
-                  console.log('[School Advisor] Non-Android device detected, user agent: ' + ua);
+                  console.log('[School Advisor] ✗ Non-Android device detected');
+                  console.log('[School Advisor] User Agent: ' + ua);
                 }
+              } catch (e) {
+                console.log('[School Advisor] Error in detection: ' + e);
               }
             })();
           `
