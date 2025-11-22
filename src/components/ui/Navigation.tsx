@@ -100,54 +100,7 @@ export default function Navigation() {
           </Link>
         </nav>
 
-        {/* Mobile Navigation - Direct Links */}
-        <nav className="flex sm:hidden items-center gap-1 ml-2">
-          <Link
-            href="/"
-            className={`${mobileNavLinkBase} ${
-              isActive('/') ? mobileNavLinkActive : mobileNavLinkInactive
-            }`}
-            onClick={() => handleNavClick('/', 'Home', true)}
-          >
-            Home
-          </Link>
-          <Link
-            href="/ask-sai"
-            className={`${mobileNavLinkBase} ${
-              isActive('/ask-sai') ? mobileNavLinkActive : mobileNavLinkInactive
-            }`}
-            onClick={() => handleNavClick('/ask-sai', 'Ask SAI', true)}
-          >
-            SAI
-          </Link>
-          <Link
-            href="/compare"
-            className={`${mobileNavLinkBase} ${
-              isActive('/compare') ? mobileNavLinkActive : mobileNavLinkInactive
-            }`}
-            onClick={() => handleNavClick('/compare', 'Compare', true)}
-          >
-            Compare
-          </Link>
-          <Link
-            href="/ranking"
-            className={`${mobileNavLinkBase} ${
-              isActive('/ranking') ? mobileNavLinkActive : mobileNavLinkInactive
-            }`}
-            onClick={() => handleNavClick('/ranking', 'School Assistant', true)}
-          >
-            Assistant
-          </Link>
-          <Link
-            href="/faq"
-            className={`${mobileNavLinkBase} ${
-              isActive('/faq') ? mobileNavLinkActive : mobileNavLinkInactive
-            }`}
-            onClick={() => handleNavClick('/faq', 'FAQ', true)}
-          >
-            FAQ
-          </Link>
-        </nav>
+        {/* Mobile Navigation - Hidden (moved to MobileBottomNav) */}
 
       </div>
     </header>

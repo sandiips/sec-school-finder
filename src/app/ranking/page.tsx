@@ -914,7 +914,7 @@ setCcaExpl(
   );
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen pb-20 max-sm:pb-20 sm:pb-0">
       <Navigation />
 
       {/* ===== Hero section with light background ===== */}

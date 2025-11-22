@@ -59,7 +59,7 @@ export default function AskSAIPage() {
   }, [showChat, initialPrompt]);
 
   return (
-    <main className="min-h-screen bg-[#1a1a1a]">
+    <main className="min-h-screen bg-[#1a1a1a] pb-20 max-sm:pb-20 sm:pb-0">
       <Navigation />
 
       {!showChat ? (

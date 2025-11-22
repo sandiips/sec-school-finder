@@ -269,7 +269,7 @@ function ComparePageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20 max-sm:pb-20 sm:pb-0">
       <Navigation />
 
 

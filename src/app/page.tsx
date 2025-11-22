@@ -188,7 +188,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-white text-gray-900 pb-20 max-sm:pb-20 sm:pb-0">
       <Navigation />
 
      {/* HERO — full bleed, anchored right, blended into dark left */}
