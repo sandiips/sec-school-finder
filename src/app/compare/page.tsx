@@ -4,7 +4,6 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { sendGAEvent } from '@next/third-parties/google';
 import { SchoolProfile } from '@/types/school';
-import Navigation from '@/components/ui/Navigation';
 import { isValidSingaporePostalCode, getPostalCodeErrorMessage } from '@/lib/validation';
 import ComparisonSelector from '@/components/comparison/ComparisonSelector';
 import ComparisonSchoolSearch from '@/components/comparison/ComparisonSchoolSearch';
@@ -257,7 +256,6 @@ function ComparePageContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navigation />
         <div className="flex items-center justify-center pt-32">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
@@ -270,9 +268,6 @@ function ComparePageContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 max-sm:pb-20 sm:pb-0">
-      <Navigation />
-
-
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

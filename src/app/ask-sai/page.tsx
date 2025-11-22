@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Navigation from '@/components/ui/Navigation';
 import ChatContainer from '@/components/chat/ChatContainer';
 import { useChat } from '@/hooks/useChat';
 
@@ -60,7 +59,6 @@ export default function AskSAIPage() {
 
   return (
     <main className="min-h-screen bg-[#1a1a1a] pb-20 max-sm:pb-20 sm:pb-0">
-      <Navigation />
 
       {!showChat ? (
         /* Initial Landing View - Google AI Mode Style */

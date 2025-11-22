@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { sendGAEvent } from '@next/third-parties/google';
-import Navigation from '@/components/ui/Navigation';
 import { isValidSingaporePostalCode, getPostalCodeErrorMessage } from '@/lib/validation';
 import MobileExplainerCards from '@/components/mobile/MobileExplainerCards';
 
@@ -915,8 +914,6 @@ setCcaExpl(
 
   return (
     <main className="min-h-screen pb-20 max-sm:pb-20 sm:pb-0">
-      <Navigation />
-
       {/* ===== Hero section with light background ===== */}
       <section className="bg-white text-black">
         <div className="container mx-auto px-4 py-8 text-center">

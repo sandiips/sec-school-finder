@@ -7,7 +7,6 @@ import useSWR from "swr";
 import { sendGAEvent } from '@next/third-parties/google';
 import SchoolCard from "@/components/search/SchoolCard";
 import ComparisonCounter from "@/components/search/ComparisonCounter";
-import Navigation from "@/components/ui/Navigation";
 import { isValidSingaporePostalCode, getPostalCodeErrorMessage, isValidPSLEScore, getPSLEScoreErrorMessage } from '@/lib/validation';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -189,7 +188,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 pb-20 max-sm:pb-20 sm:pb-0">
-      <Navigation />
 
      {/* HERO — full bleed, anchored right, blended into dark left */}
 <section className="relative isolate min-h-[560px] md:min-h-[640px] lg:min-h-[720px]">

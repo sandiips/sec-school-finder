@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Navigation from '@/components/ui/Navigation';
 import { sendGAEvent } from '@next/third-parties/google';
 
 interface FAQItem {
@@ -194,8 +193,6 @@ export default function FAQPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 max-sm:pb-20 sm:pb-0">
-      <Navigation />
-
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-12">
