@@ -115,9 +115,14 @@ export default function RootLayout({
           __html: `
             (function() {
               if (typeof window !== 'undefined') {
-                var isAndroid = /Android/i.test(navigator.userAgent);
+                var ua = navigator.userAgent;
+                // Enhanced Android detection - checks for Android in user agent
+                var isAndroid = /Android/i.test(ua);
                 if (isAndroid) {
                   document.body.classList.add('android-mobile');
+                  console.log('[School Advisor] Android device detected, android-mobile class applied');
+                } else {
+                  console.log('[School Advisor] Non-Android device detected, user agent: ' + ua);
                 }
               }
             })();

@@ -1,16 +1,5 @@
 /* Android Mobile-specific font color overrides */
 
-/* All mobile devices - Ensure form labels are readable across all platforms */
-@media only screen and (max-width: 768px) {
-  /* Form labels should be black on all mobile devices (iOS, Android, etc.) */
-  .ranking-label-psle,
-  .ranking-label-gender,
-  .ranking-label-postal,
-  .ranking-label-primary {
-    color: #000000 !important;
-  }
-}
-
 /* Media query to target Android mobile devices */
 @media only screen and (max-width: 768px) {
   /* Additional Android detection via user agent is handled in JS */
