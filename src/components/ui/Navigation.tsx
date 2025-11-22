@@ -6,11 +6,7 @@ import { usePathname } from 'next/navigation';
 import { sendGAEvent } from '@next/third-parties/google';
 import MobileHeaderFeedback from './MobileHeaderFeedback';
 
-interface NavigationProps {
-  onMobileFeedbackClick?: () => void;
-}
-
-export default function Navigation({ onMobileFeedbackClick }: NavigationProps) {
+export default function Navigation() {
   const pathname = usePathname();
 
   const isActive = (path: string) => {
@@ -109,10 +105,8 @@ export default function Navigation({ onMobileFeedbackClick }: NavigationProps) {
 
         {/* Mobile Navigation - Hidden (moved to MobileBottomNav) */}
 
-        {/* Mobile Feedback Button */}
-        {onMobileFeedbackClick && (
-          <MobileHeaderFeedback onFeedbackClick={onMobileFeedbackClick} />
-        )}
+        {/* Mobile Feedback Button - Navigates to Ask SAI */}
+        <MobileHeaderFeedback />
       </div>
     </header>
   );
