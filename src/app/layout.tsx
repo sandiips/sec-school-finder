@@ -117,7 +117,7 @@ export default function RootLayout({
               if (typeof window !== 'undefined') {
                 var isAndroid = /Android/i.test(navigator.userAgent);
                 if (isAndroid) {
-                  document.documentElement.classList.add('android-mobile');
+                  document.body.classList.add('android-mobile');
                 }
               }
             })();

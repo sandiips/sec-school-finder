@@ -2,43 +2,44 @@
 
 /* Media query to target Android mobile devices */
 @media only screen and (max-width: 768px) {
-  /* Additional Android detection via user agent would be handled in JS */
+  /* Additional Android detection via user agent is handled in JS */
+  /* Applied to body.android-mobile to avoid React hydration errors */
 
   /* School Assistant page - Basic Information section text to BLACK */
-  .android-mobile .ranking-basic-info-title,
-  .android-mobile .ranking-label-psle,
-  .android-mobile .ranking-label-gender,
-  .android-mobile .ranking-label-postal,
-  .android-mobile .ranking-label-primary,
-  .android-mobile .ranking-section-title {
+  body.android-mobile .ranking-basic-info-title,
+  body.android-mobile .ranking-label-psle,
+  body.android-mobile .ranking-label-gender,
+  body.android-mobile .ranking-label-postal,
+  body.android-mobile .ranking-label-primary,
+  body.android-mobile .ranking-section-title {
     color: #000000 !important;
   }
 
   /* School Assistant page - Results section text to WHITE */
-  .android-mobile .ranking-results-summary-title,
-  .android-mobile .ranking-results-summary-text,
-  .android-mobile .ranking-results-disclaimer {
+  body.android-mobile .ranking-results-summary-title,
+  body.android-mobile .ranking-results-summary-text,
+  body.android-mobile .ranking-results-disclaimer {
     color: #ffffff !important;
   }
 
   /* Compare page - Left sidebar text to WHITE */
-  .android-mobile .compare-sidebar-title,
-  .android-mobile .compare-sidebar-instruction,
-  .android-mobile .compare-sidebar-count {
+  body.android-mobile .compare-sidebar-title,
+  body.android-mobile .compare-sidebar-instruction,
+  body.android-mobile .compare-sidebar-count {
     color: #ffffff !important;
   }
 
   /* Compare page - Selected school names to WHITE */
-  .android-mobile .compare-selected-school-name {
+  body.android-mobile .compare-selected-school-name {
     color: #ffffff !important;
   }
 
   /* Compare page - Comparison table/cards text to BLACK */
-  .android-mobile .compare-cutoff-ip-title,
-  .android-mobile .compare-cutoff-affiliated-title,
-  .android-mobile .compare-cutoff-open-title,
-  .android-mobile .compare-summary-title,
-  .android-mobile .compare-summary-label {
+  body.android-mobile .compare-cutoff-ip-title,
+  body.android-mobile .compare-cutoff-affiliated-title,
+  body.android-mobile .compare-cutoff-open-title,
+  body.android-mobile .compare-summary-title,
+  body.android-mobile .compare-summary-label {
     color: #000000 !important;
   }
 }
