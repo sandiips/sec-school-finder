@@ -26,7 +26,7 @@ export default function ChatInput({ onSend, disabled = false, darkMode = false }
   };
 
   return (
-    <div className={`w-full ${darkMode ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
+    <div className={`w-full pb-[env(safe-area-inset-bottom)] ${darkMode ? 'bg-[#1a1a1a]' : 'bg-white'}`}>
       <div className="max-w-3xl mx-auto px-4 py-4">
         <form onSubmit={handleSubmit} className="relative">
           {/* Google-style input container */}

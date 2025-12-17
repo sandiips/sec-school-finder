@@ -112,7 +112,7 @@ export default function AskSAIPage() {
         </div>
       ) : (
         /* Chat Interface - Full screen Google style */
-        <div className="fixed inset-0 top-16 bg-[#1a1a1a] flex flex-col">
+        <div className="fixed inset-0 top-16 bg-[#1a1a1a] flex flex-col pb-24 max-sm:pb-[max(6rem,calc(6rem+env(safe-area-inset-bottom)))] sm:pb-0">
           {/* Back button - fixed at top */}
           <div className="flex-shrink-0 px-4 py-3 border-b border-gray-800">
             <button
