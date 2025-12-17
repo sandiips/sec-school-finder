@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Route segment config - prevents build-time module evaluation in Next.js 15.4.10+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 type Body = {
   path?: string;
   userAgent?: string;
